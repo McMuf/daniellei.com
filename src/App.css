@@ -142,15 +142,6 @@ main {
 
 .job { display: block; }
 
-.job-logo {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: var(--line);
-  flex-shrink: 0;
-}
-
 .job-head {
   display: flex;
   flex-wrap: wrap;

@@ -5,7 +5,6 @@ export type Job = {
   period: string
   description?: string
   current?: boolean
-  logo?: string
 }
 
 // most recent first
@@ -15,7 +14,6 @@ export const jobs: Job[] = [
     role: 'Incoming Analyst',
     url: 'https://www.marbleinvestments.ca/',
     period: '2026',
-    logo: '/logos/marble.svg',
     description: 'Incoming analyst at Marble Investments, a student-run investment fund at the University of Waterloo with ~$2M CAD in assets under management.',
     current: true,
   },
@@ -31,7 +29,6 @@ export const jobs: Job[] = [
     role: 'Hackathon Chair',
     url: 'https://vshacks.com/',
     period: '2025 — present',
-    logo: '/logos/vshacks.svg',
     description: 'Directed a student-run virtual hackathon across two editions, scaling to 400+ participants, 8+ sponsors, and $4,000+ CAD in prizes. Cold-emailed and recruited 6+ senior practitioners from J.P. Morgan, Apple, and Microsoft as judges and keynote speakers; negotiated cash and in-kind sponsorship across two funding cycles.',
     current: true,
   },
@@ -40,7 +37,6 @@ export const jobs: Job[] = [
     role: 'Co-Founder & President',
     url: 'https://conceptusfoundation.org/',
     period: 'Sep. 2024 — present',
-    logo: '/logos/conceptus.svg',
     description: 'Founded and led a registered STEM-education nonprofit; managed 20+ volunteers and oversaw budgeting, fundraising, and donor communications. Fundraised $1,700+ CAD for STEM programming in underserved communities; grew Instagram to 1,000+ followers and 90,000+ impressions, and tutored Grades 4–7 students in Python fundamentals.',
     current: true,
   },

@@ -7,7 +7,6 @@ export default function Work() {
         <div key={j.company + j.period} className="job">
           <div className="job-main">
             <div className="job-head">
-              {j.logo && <img src={j.logo} alt="" aria-hidden="true" className="job-logo" />}
               {j.url
                 ? <a href={j.url} target="_blank" rel="noopener noreferrer" className="hlink">{j.company}</a>
                 : <span>{j.company}</span>}
