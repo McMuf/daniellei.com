@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { profile } from '../data/profile'
 import { posts } from '../lib/posts'
+import AsciiSphere from '../components/AsciiSphere'
 
 export default function Home() {
   const latest = posts[0]
@@ -10,6 +11,8 @@ export default function Home() {
       {profile.bio.map((p, i) => (
         <p key={i} className="home-bio">{p}</p>
       ))}
+
+      <AsciiSphere />
 
       {latest && (
         <div className="latest-report">
