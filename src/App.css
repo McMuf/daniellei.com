@@ -71,8 +71,9 @@ main {
 
 .ascii-ship {
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.05;
+  font-size: 5px;
+  line-height: 5px;
+  letter-spacing: -0.5px;
   color: var(--accent);
   white-space: pre;
   text-align: center;
@@ -104,8 +105,9 @@ main {
   left: 0;
   z-index: 5;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
-  line-height: 1.05;
+  font-size: 5px;
+  line-height: 5px;
+  letter-spacing: -0.5px;
   color: var(--accent);
   white-space: pre;
   text-align: center;

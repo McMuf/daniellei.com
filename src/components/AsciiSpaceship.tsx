@@ -1,20 +1,49 @@
 import { useEffect, useRef, useState } from 'react'
 
-const SHIP_ART = [
-  '     /\\',
-  '    /  \\',
-  '   /    \\',
-  '  |  ()  |',
-  '  |------|',
-  ' /|      |\\',
-  '/_|______|_\\',
-].join('\n')
+// Classic light-to-dense "image to ASCII" brightness ramp — mixing
+// punctuation and letterforms is what gives real ascii-art conversions
+// their mottled, textured look rather than a flat outline.
+const DENSITY_RAMP = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
+
+function generateShipTexture() {
+  const H = 40
+  const MAX_W = 26
+  const centerCol = (MAX_W - 1) / 2
+  const rows: string[] = []
+
+  for (let r = 0; r < H; r++) {
+    const t = r / (H - 1)
+    // pointed at both ends, widest at the middle — the elongated capsule
+    // silhouette that reads as a rocket once rotated to a flight heading
+    const halfWidth = (MAX_W / 2) * Math.sqrt(Math.max(0, 1 - ((t - 0.5) / 0.5) ** 2))
+
+    let line = ''
+    for (let c = 0; c < MAX_W; c++) {
+      const d = halfWidth > 0.4 ? Math.abs(c - centerCol) / halfWidth : 2
+      if (d > 1) { line += ' '; continue }
+      // noisy, dithered edge instead of a hard boundary
+      if (d > 0.82 && Math.random() > (1 - d) * 4.5) { line += ' '; continue }
+
+      const density = 1 - d
+      const jitter = (Math.random() - 0.5) * 0.4
+      const idx = Math.min(
+        DENSITY_RAMP.length - 1,
+        Math.max(0, Math.round((density + jitter) * (DENSITY_RAMP.length - 1))),
+      )
+      line += DENSITY_RAMP[idx]
+    }
+    rows.push(line)
+  }
+  return rows.join('\n')
+}
+
+const SHIP_ART = generateShipTexture()
 
 const HOLD_THRESHOLD_MS = 450
 const FLIGHT_DURATION_MS = 2600
 const FADE_DURATION_MS = 500
 const TRAIL_LINGER_MS = 1400
-const SHIP_HALF_LENGTH = 46
+const SHIP_HALF_LENGTH = 95
 
 // Module-level, not React state or sessionStorage: needs to survive
 // client-side route navigation (Home unmounting/remounting via the router)
