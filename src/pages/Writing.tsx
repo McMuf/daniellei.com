@@ -5,7 +5,7 @@ export default function Writing() {
   return (
     <div className="writing-list">
       <p className="writing-intro">
-        market and sector notes, written roughly every two months — the same cadence as a fund's client letter.
+        market and sector notes, still under development
       </p>
       {posts.length === 0 && <p className="writing-empty">no reports published yet.</p>}
       {posts.map(p => (

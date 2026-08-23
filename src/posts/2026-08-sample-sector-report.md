@@ -1,28 +1,23 @@
 ---
-title: "Sample Report: Replace Me"
+title: "Sample Report"
 date: "2026-08-22"
 sector: "Sector"
-summary: "This is a placeholder report showing the writing page's layout and formatting — delete it once you've published your first real note."
+summary: "Placeholder"
 tags: [sample]
 ---
 
-This is a placeholder post so the writing page has something to render.
-Delete this file (or edit it in place) once you publish your first real
-sector note. See `_template.md` in this same folder for the format to
-copy for future posts.
+Stay tuned its a template right now.
 
 ## overview
 
-A market research note lives here — the kind of periodic client-letter
-update a fund might send: what happened, what it means, and what to watch.
+yep 
 
 ## landscape
 
-This section would typically cover market structure, competitive dynamics,
-and anything that changed materially since the last note.
+nothing 
 
 ## key players
-
+to see here
 | Company | Position | Notes |
 | --- | --- | --- |
 | Example Co A | Incumbent | placeholder row |
@@ -30,7 +25,7 @@ and anything that changed materially since the last note.
 
 ## risks
 
-What could invalidate the thesis above.
+risks are risky
 
 ## takeaways
 

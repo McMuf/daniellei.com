@@ -5,9 +5,9 @@ export default function Work() {
     <div className="jobs">
       {jobs.map(j => (
         <div key={j.company + j.period} className="job">
-          <span className="job-mark" aria-hidden="true">{j.company.slice(0, 1)}</span>
           <div className="job-main">
             <div className="job-head">
+              {j.logo && <img src={j.logo} alt="" aria-hidden="true" className="job-logo" />}
               {j.url
                 ? <a href={j.url} target="_blank" rel="noopener noreferrer" className="hlink">{j.company}</a>
                 : <span>{j.company}</span>}
