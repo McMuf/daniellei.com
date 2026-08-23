@@ -1,0 +1,49 @@
+:root {
+  --paper: #ffffff;
+  --ink: #17365f;
+  --accent: #67aaf9;
+  --accent-deep: #3478c5;
+  --muted: #526985;
+  --line: #cfdae7;
+  --line-soft: #e5edf5;
+  --font-serif: "Newsreader", "Newsreader Fallback", Georgia, "Times New Roman", serif;
+  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17.5px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle, rgba(103, 170, 249, 0.16) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-attachment: fixed;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  color: var(--ink);
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+}
+
+@media (max-width: 768px) {
+  html { font-size: 15.5px; }
+}
