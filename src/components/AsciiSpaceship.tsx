@@ -5,27 +5,48 @@ import { useEffect, useRef, useState } from 'react'
 // their mottled, textured look rather than a flat outline.
 const DENSITY_RAMP = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
 
+// Width as a fraction of the body radius, by height fraction t (0 = nose tip,
+// 1 = engine base). This is what actually reads as "rocket" rather than a
+// generic blob: a pointed nose, a straight body, and fins flared wider than
+// the body near the base, tapering back in slightly at the nozzle.
+function widthProfile(t: number) {
+  if (t < 0.2) return Math.pow(t / 0.2, 0.75)
+  if (t < 0.68) return 1
+  if (t < 0.85) return 1 + 0.9 * ((t - 0.68) / (0.85 - 0.68))
+  const k = (t - 0.85) / (1 - 0.85)
+  return 1.9 - 1.4 * k
+}
+
 function generateShipTexture() {
-  const H = 40
-  const MAX_W = 26
+  const H = 42
+  const BODY_HALF = 7
+  const MAX_W = Math.ceil(BODY_HALF * 1.9 * 2) + 2
   const centerCol = (MAX_W - 1) / 2
+  const windowRowStart = Math.round(0.3 * (H - 1))
+  const windowRowEnd = Math.round(0.42 * (H - 1))
   const rows: string[] = []
 
   for (let r = 0; r < H; r++) {
     const t = r / (H - 1)
-    // pointed at both ends, widest at the middle — the elongated capsule
-    // silhouette that reads as a rocket once rotated to a flight heading
-    const halfWidth = (MAX_W / 2) * Math.sqrt(Math.max(0, 1 - ((t - 0.5) / 0.5) ** 2))
+    const halfWidth = BODY_HALF * widthProfile(t)
 
     let line = ''
     for (let c = 0; c < MAX_W; c++) {
-      const d = halfWidth > 0.4 ? Math.abs(c - centerCol) / halfWidth : 2
+      const dx = Math.abs(c - centerCol)
+      const d = halfWidth > 0.3 ? dx / halfWidth : 2
       if (d > 1) { line += ' '; continue }
-      // noisy, dithered edge instead of a hard boundary
-      if (d > 0.82 && Math.random() > (1 - d) * 4.5) { line += ' '; continue }
 
-      const density = 1 - d
-      const jitter = (Math.random() - 0.5) * 0.4
+      // a porthole window near the nose, cut cleanly out of the texture
+      if (r >= windowRowStart && r <= windowRowEnd) {
+        if (dx <= 2) { line += ' '; continue }
+        if (dx <= 3) { line += DENSITY_RAMP[DENSITY_RAMP.length - 1]; continue }
+      }
+
+      // thin dithered fringe right at the outline, not eating into the body
+      if (d > 0.88 && Math.random() < (d - 0.88) * 7) { line += ' '; continue }
+
+      const density = 1 - d * 0.55
+      const jitter = (Math.random() - 0.5) * 0.3
       const idx = Math.min(
         DENSITY_RAMP.length - 1,
         Math.max(0, Math.round((density + jitter) * (DENSITY_RAMP.length - 1))),
