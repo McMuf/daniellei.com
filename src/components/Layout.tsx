@@ -1,7 +1,6 @@
 import { Fragment } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { profile } from '../data/profile'
-import SimulationProvider from './SimulationProvider'
 
 const TABS = [
   { to: '/work', label: 'work' },
@@ -11,7 +10,6 @@ const TABS = [
 
 export default function Layout() {
   return (
-    <SimulationProvider>
     <main>
       <header className="plain-header">
         <h1><Link to="/">{profile.name}</Link></h1>
@@ -42,6 +40,5 @@ export default function Layout() {
         <a href={`mailto:${profile.email}`}>{profile.email}</a>
       </footer>
     </main>
-    </SimulationProvider>
   )
 }

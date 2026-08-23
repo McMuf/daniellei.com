@@ -58,55 +58,61 @@ main {
   margin-bottom: 16px;
 }
 
-.stock-bg-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.stock-sim {
+.ascii-ship-wrap {
   margin: 34px auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  background: none;
-  border: none;
-  padding: 10px;
   cursor: pointer;
-  font-family: inherit;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.stock-sim.fired { transform: scale(1.08); }
-
-.stock-sim-preview {
-  width: 200px;
-  height: 60px;
-  overflow: visible;
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 1.4;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  opacity: 0.85;
-  transition: opacity 0.2s ease, filter 0.2s ease;
-}
-.stock-sim:hover .stock-sim-preview {
-  opacity: 1;
-  filter: drop-shadow(0 0 6px rgba(29, 255, 176, 0.5));
+  user-select: none;
+  touch-action: none;
 }
 
-.stock-sim-caption {
+.ascii-ship {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.05;
+  color: var(--accent);
+  white-space: pre;
+  text-align: center;
+  transition: filter 0.15s ease;
+}
+
+@keyframes ship-charge {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-1px) rotate(-3deg); }
+  75% { transform: translateY(1px) rotate(3deg); }
+}
+.ascii-ship-wrap.charging .ascii-ship {
+  animation: ship-charge 0.12s infinite;
+  filter: drop-shadow(0 0 8px rgba(29, 255, 176, 0.7));
+}
+
+.ascii-ship-caption {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--muted);
   letter-spacing: 0.02em;
   transition: color 0.2s ease;
 }
-.stock-sim:hover .stock-sim-caption { color: var(--accent); }
+.ascii-ship-wrap.charging .ascii-ship-caption { color: var(--accent); }
+
+.ascii-ship-flying {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.05;
+  color: var(--accent);
+  white-space: pre;
+  text-align: center;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(29, 255, 176, 0.6));
+  will-change: transform;
+}
 
 .latest-report { margin-top: 32px; }
 
