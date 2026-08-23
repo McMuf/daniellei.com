@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { profile } from '../data/profile'
 
@@ -10,36 +11,38 @@ const TABS = [
 export default function Layout() {
   return (
     <main>
-      <header className="site-header">
-        <Link to="/" className="site-name">
-          <h1>{profile.name}</h1>
-        </Link>
-        <p className="site-tagline">{profile.tagline}</p>
-        <nav className="social-row">
-          {profile.social.map(s => (
-            <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" className="social-link">
-              [{s.label}]
-            </a>
+      <header className="plain-header">
+        <h1><Link to="/">{profile.name}</Link></h1>
+        <p className="tagline">{profile.tagline}</p>
+
+        <nav className="plain-nav">
+          {TABS.map((t, i) => (
+            <Fragment key={t.to}>
+              {i > 0 && <span className="sep"> / </span>}
+              <NavLink to={t.to} className={({ isActive }) => isActive ? 'active' : ''}>{t.label}</NavLink>
+            </Fragment>
           ))}
-          <a href={`mailto:${profile.email}`} className="social-link">[email]</a>
         </nav>
       </header>
 
-      <nav className="mode-nav">
-        {TABS.map(t => (
-          <NavLink
-            key={t.to}
-            to={t.to}
-            className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
-          >
-            {t.label}
-          </NavLink>
-        ))}
-      </nav>
+      <hr />
 
       <div className="page">
         <Outlet />
       </div>
+
+      <hr />
+
+      <footer className="plain-footer">
+        {profile.social.map((s, i) => (
+          <Fragment key={s.label}>
+            {i > 0 && <span className="sep"> · </span>}
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+          </Fragment>
+        ))}
+        <span className="sep"> · </span>
+        <a href={`mailto:${profile.email}`}>{profile.email}</a>
+      </footer>
     </main>
   )
 }
