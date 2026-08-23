@@ -1,70 +1,43 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Classic light-to-dense "image to ASCII" brightness ramp — mixing
-// punctuation and letterforms is what gives real ascii-art conversions
-// their mottled, textured look rather than a flat outline.
-const DENSITY_RAMP = ' .\'`^",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$'
-
-// Width as a fraction of the body radius, by height fraction t (0 = nose tip,
-// 1 = engine base). This is what actually reads as "rocket" rather than a
-// generic blob: a pointed nose, a straight body, and fins flared wider than
-// the body near the base, tapering back in slightly at the nozzle.
-function widthProfile(t: number) {
-  if (t < 0.2) return Math.pow(t / 0.2, 0.75)
-  if (t < 0.68) return 1
-  if (t < 0.85) return 1 + 0.9 * ((t - 0.68) / (0.85 - 0.68))
-  const k = (t - 0.85) / (1 - 0.85)
-  return 1.9 - 1.4 * k
-}
-
-function generateShipTexture() {
-  const H = 42
-  const BODY_HALF = 7
-  const MAX_W = Math.ceil(BODY_HALF * 1.9 * 2) + 2
-  const centerCol = (MAX_W - 1) / 2
-  const windowRowStart = Math.round(0.3 * (H - 1))
-  const windowRowEnd = Math.round(0.42 * (H - 1))
-  const rows: string[] = []
-
-  for (let r = 0; r < H; r++) {
-    const t = r / (H - 1)
-    const halfWidth = BODY_HALF * widthProfile(t)
-
-    let line = ''
-    for (let c = 0; c < MAX_W; c++) {
-      const dx = Math.abs(c - centerCol)
-      const d = halfWidth > 0.3 ? dx / halfWidth : 2
-      if (d > 1) { line += ' '; continue }
-
-      // a porthole window near the nose, cut cleanly out of the texture
-      if (r >= windowRowStart && r <= windowRowEnd) {
-        if (dx <= 2) { line += ' '; continue }
-        if (dx <= 3) { line += DENSITY_RAMP[DENSITY_RAMP.length - 1]; continue }
-      }
-
-      // thin dithered fringe right at the outline, not eating into the body
-      if (d > 0.88 && Math.random() < (d - 0.88) * 7) { line += ' '; continue }
-
-      const density = 1 - d * 0.55
-      const jitter = (Math.random() - 0.5) * 0.3
-      const idx = Math.min(
-        DENSITY_RAMP.length - 1,
-        Math.max(0, Math.round((density + jitter) * (DENSITY_RAMP.length - 1))),
-      )
-      line += DENSITY_RAMP[idx]
-    }
-    rows.push(line)
-  }
-  return rows.join('\n')
-}
-
-const SHIP_ART = generateShipTexture()
+const SHIP_ART = [
+  '       !',
+  '       !',
+  '       ^',
+  '      / \\',
+  '     /___\\',
+  '    |=   =|',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '    |     |',
+  '   /|##!##|\\',
+  '  / |##!##| \\',
+  ' /  |##!##|  \\',
+  '|  / ^ | ^ \\  |',
+  '| /  ( | )  \\ |',
+  '|/   ( | )   \\|',
+  '    ((   ))',
+  '   ((  :  ))',
+  '   ((  :  ))',
+  '    ((   ))',
+  '     (( ))',
+  '      ( )',
+  '       .',
+  '       .',
+  '       .',
+].join('\n')
 
 const HOLD_THRESHOLD_MS = 450
 const FLIGHT_DURATION_MS = 2600
 const FADE_DURATION_MS = 500
 const TRAIL_LINGER_MS = 1400
-const SHIP_HALF_LENGTH = 95
+const SHIP_HALF_LENGTH = 105
 
 // Module-level, not React state or sessionStorage: needs to survive
 // client-side route navigation (Home unmounting/remounting via the router)
