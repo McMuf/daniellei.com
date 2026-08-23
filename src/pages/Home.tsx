@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { profile } from '../data/profile'
 import { posts } from '../lib/posts'
-import AsciiSphere from '../components/AsciiSphere'
+import StockChartButton from '../components/StockChartButton'
 
 export default function Home() {
   const latest = posts[0]
@@ -12,7 +12,7 @@ export default function Home() {
         <p key={i} className="home-bio">{p}</p>
       ))}
 
-      <AsciiSphere />
+      <StockChartButton />
 
       {latest && (
         <div className="latest-report">
