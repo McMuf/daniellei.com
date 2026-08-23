@@ -114,6 +114,15 @@ main {
   will-change: transform;
 }
 
+.ascii-ship-trail {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 4;
+  pointer-events: none;
+}
+
 .latest-report { margin-top: 32px; }
 
 .latest-report-card {
