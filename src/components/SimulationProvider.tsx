@@ -8,6 +8,7 @@ type Particle = {
   prevX: number
   prevY: number
   alpha: number
+  color: string
 }
 
 type SimulationContextValue = {
@@ -24,6 +25,15 @@ export function useSimulation() {
 
 const MAX_PARTICLES = 140
 const BURST_SIZE = 22
+const DAMPING = 0.985
+
+// varying shades within the turquoise/green family, so a burst isn't a flat single color
+function randomGreenShade() {
+  const r = Math.floor(Math.random() * 130)
+  const g = Math.floor(165 + Math.random() * 90)
+  const b = Math.floor(60 + Math.random() * 200)
+  return `${r}, ${g}, ${b}`
+}
 
 export default function SimulationProvider({ children }: { children: ReactNode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -59,7 +69,7 @@ export default function SimulationProvider({ children }: { children: ReactNode }
         const count = Math.min(BURST_SIZE, Math.max(0, room))
         for (let i = 0; i < count; i++) {
           const angle = Math.random() * Math.PI * 2
-          const speed = 1.2 + Math.random() * 2.6
+          const speed = 1.8 + Math.random() * 4.2
           particlesRef.current.push({
             x,
             y,
@@ -68,6 +78,7 @@ export default function SimulationProvider({ children }: { children: ReactNode }
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             alpha: 0.4 + Math.random() * 0.35,
+            color: randomGreenShade(),
           })
         }
       }
@@ -81,9 +92,12 @@ export default function SimulationProvider({ children }: { children: ReactNode }
         p.prevX = p.x
         p.prevY = p.y
 
-        // jagged random-walk jitter so lines read as stock-chart noise, not straight rays
-        p.vy += (Math.random() - 0.5) * 0.5
-        p.vx += (Math.random() - 0.5) * 0.15
+        // small ongoing jitter keeps lines reading as stock-chart noise, not straight rays
+        p.vy += (Math.random() - 0.5) * 0.05
+        p.vx += (Math.random() - 0.5) * 0.02
+        // damping bleeds off the initial burst speed so motion settles to a slow drift
+        p.vx *= DAMPING
+        p.vy *= DAMPING
         p.x += p.vx
         p.y += p.vy
 
@@ -92,7 +106,7 @@ export default function SimulationProvider({ children }: { children: ReactNode }
         if (p.y < 0) { p.y = 0; p.vy *= -1 }
         if (p.y > h) { p.y = h; p.vy *= -1 }
 
-        ctx.strokeStyle = `rgba(29, 255, 176, ${p.alpha})`
+        ctx.strokeStyle = `rgba(${p.color}, ${p.alpha})`
         ctx.beginPath()
         ctx.moveTo(p.prevX, p.prevY)
         ctx.lineTo(p.x, p.y)
