@@ -12,7 +12,7 @@ type Command = {
 }
 
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
-const shortcutLabel = isMac ? '⌘K' : 'Ctrl K'
+export const shortcutLabel = isMac ? '⌘K' : 'Ctrl K'
 
 export default function CommandPalette() {
   const [open, setOpen] = useState(false)
