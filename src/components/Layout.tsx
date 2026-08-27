@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { profile } from '../data/profile'
+import CommandPalette from './CommandPalette'
 
 const TABS = [
   { to: '/work', label: 'work' },
@@ -22,6 +23,7 @@ export default function Layout() {
               <NavLink to={t.to} className={({ isActive }) => isActive ? 'active' : ''}>{t.label}</NavLink>
             </Fragment>
           ))}
+          <CommandPalette />
         </nav>
       </header>
 
