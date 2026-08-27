@@ -86,7 +86,7 @@ main {
 }
 .ascii-ship-wrap.charging .ascii-ship {
   animation: ship-charge 0.12s infinite;
-  filter: drop-shadow(0 0 8px rgba(29, 255, 176, 0.7));
+  filter: drop-shadow(0 0 8px rgba(53, 230, 174, 0.7));
 }
 
 .ascii-ship-caption {
@@ -110,7 +110,7 @@ main {
   white-space: pre;
   text-align: left;
   pointer-events: none;
-  filter: drop-shadow(0 0 6px rgba(29, 255, 176, 0.6));
+  filter: drop-shadow(0 0 6px rgba(53, 230, 174, 0.6));
   will-change: transform;
 }
 
