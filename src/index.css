@@ -1,11 +1,11 @@
 :root {
   --bg: #0a0f0e;
-  --fg: #dbe8e4;
-  --muted: #7c9791;
-  --line: #1e2e2a;
-  --link: #1dffb0;
-  --accent: #1dffb0;
-  --accent-dim: #12b57e;
+  --fg: #eaf3f0;
+  --muted: #9db4ad;
+  --line: #24352f;
+  --link: #2effb8;
+  --accent: #2effb8;
+  --accent-dim: #1ec98e;
   --font-serif: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
 }

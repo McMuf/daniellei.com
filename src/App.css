@@ -75,7 +75,7 @@ main {
   line-height: 9px;
   color: var(--accent);
   white-space: pre;
-  text-align: center;
+  text-align: left;
   transition: filter 0.15s ease;
 }
 
@@ -108,7 +108,7 @@ main {
   line-height: 9px;
   color: var(--accent);
   white-space: pre;
-  text-align: center;
+  text-align: left;
   pointer-events: none;
   filter: drop-shadow(0 0 6px rgba(29, 255, 176, 0.6));
   will-change: transform;
