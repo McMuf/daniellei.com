@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { profile } from '../data/profile'
 import CommandPalette, { shortcutLabel } from './CommandPalette'
-import { SOCIAL_ICONS } from './icons'
+import { SOCIAL_ICONS, SOCIAL_ICON_COLORS } from './icons'
 
 const TABS = [
   { to: '/work', label: 'work' },
@@ -39,7 +39,7 @@ export default function Layout() {
             <Fragment key={s.label}>
               {i > 0 && <span className="sep"> · </span>}
               <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
-                {Icon ? <Icon className="social-icon" /> : s.label}
+                {Icon ? <Icon className="social-icon" color={SOCIAL_ICON_COLORS[s.label]} /> : s.label}
               </a>
             </Fragment>
           )

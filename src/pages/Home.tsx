@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
 import AsciiSpaceship from '../components/AsciiSpaceship'
-import { WaterlooIcon, FaInstagram } from '../components/icons'
+import { WaterlooIcon, FaInstagram, INSTAGRAM_COLOR } from '../components/icons'
 
 export default function Home() {
   const latest = posts[0]
@@ -12,7 +12,7 @@ export default function Home() {
 
       <p className="home-bio">
         i am a first year cs + finance student (cfm) at the{' '}
-        <WaterlooIcon className="inline-icon" />{' '}
+        <WaterlooIcon className="inline-icon" color="#FFC72C" />{' '}
         <a
           href="https://uwaterloo.ca/future-students/programs/computing-and-financial-management"
           target="_blank"
@@ -24,7 +24,7 @@ export default function Home() {
       </p>
       <p className="home-bio">
         i am also a tech and gym enthusiast (
-        <FaInstagram className="inline-icon" aria-hidden="true" />
+        <FaInstagram className="inline-icon" color={INSTAGRAM_COLOR} aria-hidden="true" />
         <a
           href="https://www.instagram.com/dandoesrepz/"
           target="_blank"
