@@ -63,11 +63,11 @@ export default function Layout() {
           })}
         </div>
         <div className="webring">
-          <a href={`${WEBRING_BASE}?nav=prev`} aria-label="Previous site in the UW CS webring" title="Previous">&larr;</a>
+          <a href={`${WEBRING_BASE}?nav=prev`} className="webring-nav" aria-label="Previous site in the UW CS webring" title="Previous">&lt;</a>
           <a href={WEBRING_BASE} target="_blank" rel="noopener noreferrer" aria-label="UW CS webring" title="UW CS webring">
             <WebringBadge />
           </a>
-          <a href={`${WEBRING_BASE}?nav=next`} aria-label="Next site in the UW CS webring" title="Next">&rarr;</a>
+          <a href={`${WEBRING_BASE}?nav=next`} className="webring-nav" aria-label="Next site in the UW CS webring" title="Next">&gt;</a>
         </div>
 
         <a href={`mailto:${profile.email}`} className="footer-email">{obfuscateEmail(profile.email)}</a>

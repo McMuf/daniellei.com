@@ -170,8 +170,13 @@ main {
 .webring a { color: var(--muted); font-size: 0.85rem; }
 .webring a:hover { color: var(--link); }
 .webring-icon { width: 22.4px; height: 22.4px; color: var(--fg); }
-.webring-zigzag { stroke: var(--accent); }
-.webring-arrowhead { fill: var(--accent); }
+.webring-nav {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.webring-nav:hover { color: var(--accent-dim); }
 
 .section-label {
   font-size: 0.85rem;
