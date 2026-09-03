@@ -370,7 +370,7 @@ main {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  opacity: 0.16;
+  opacity: 0.11;
 }
 
 .project-grid {
@@ -421,8 +421,8 @@ a.pcard:hover .pcard-title { text-decoration: underline; }
 
 .scribble {
   fill: none;
-  stroke: rgba(64, 214, 138, 0.16);
-  stroke-width: 2.2;
+  stroke: rgba(64, 214, 138, 0.2);
+  stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
   animation-name: scribble-draw;
