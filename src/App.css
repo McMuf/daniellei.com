@@ -221,16 +221,16 @@ main {
   border-radius: 2px;
 }
 
-.candle-up .candle-wick { background: rgba(64, 214, 138, 0.3); }
+.candle-up .candle-wick { background: rgba(64, 214, 138, 0.14); }
 .candle-up .candle-body {
-  background: rgba(64, 214, 138, 0.14);
-  border: 1px solid rgba(64, 214, 138, 0.35);
+  background: rgba(64, 214, 138, 0.055);
+  border: 1px solid rgba(64, 214, 138, 0.16);
 }
 
-.candle-down .candle-wick { background: rgba(235, 87, 87, 0.28); }
+.candle-down .candle-wick { background: rgba(235, 87, 87, 0.13); }
 .candle-down .candle-body {
-  background: rgba(235, 87, 87, 0.12);
-  border: 1px solid rgba(235, 87, 87, 0.32);
+  background: rgba(235, 87, 87, 0.045);
+  border: 1px solid rgba(235, 87, 87, 0.15);
 }
 
 @keyframes candle-float {
