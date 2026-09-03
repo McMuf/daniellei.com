@@ -6,6 +6,7 @@ export type TickerEntry = {
   basePrice: number
   changePct: number
   url?: string
+  unit: string
   isIndex?: boolean
 }
 
@@ -19,22 +20,25 @@ export const TICKERS: TickerEntry[] = [
     fact: 'personally verified: creatine does, in fact, do something.',
     basePrice: 142.30,
     changePct: 2.6,
+    unit: 'lbs',
   },
   {
     ticker: 'CMIX',
     name: 'Comic Index',
     blurb: 'tracks how deep into the comic backlog i am this year.',
     fact: 'current arc: rereading old Spider-Man runs when i should be studying.',
-    basePrice: 88.10,
+    basePrice: 34.60,
     changePct: -0.8,
+    unit: 'issues',
   },
   {
     ticker: 'CAFN',
     name: 'Caffeine Index',
     blurb: "tracks how much coffee it's taking to keep this website running.",
     fact: 'correlates suspiciously well with commit frequency.',
-    basePrice: 61.40,
+    basePrice: 312.00,
     changePct: 4.1,
+    unit: 'mg',
   },
   {
     ticker: 'CODE',
@@ -43,6 +47,7 @@ export const TICKERS: TickerEntry[] = [
     fact: "couldn't reach GitHub right now. click the ticker to see the real thing.",
     basePrice: 205.70,
     changePct: 1.9,
+    unit: 'pushes/wk',
     url: 'https://github.com/McMuf',
   },
   {
@@ -52,6 +57,7 @@ export const TICKERS: TickerEntry[] = [
     fact: "weighted more toward caffeine than i'd like to admit.",
     basePrice: 1284.60,
     changePct: 1.7,
+    unit: 'pts',
     isIndex: true,
   },
 ]
