@@ -337,7 +337,41 @@ main {
 
 /* work */
 
-.jobs { display: flex; flex-direction: column; gap: 26px; }
+.terminal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.terminal-col {
+  position: absolute;
+  top: 0;
+  width: 240px;
+  margin-left: -120px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.8;
+  color: rgba(64, 214, 138, 0.05);
+  white-space: nowrap;
+  animation-name: terminal-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.terminal-cmd { color: rgba(64, 214, 138, 0.09); }
+
+@keyframes terminal-scroll {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+
+@media (max-width: 640px) {
+  .terminal-bg { display: none; }
+}
+
+.jobs { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 26px; }
 
 .job { display: block; }
 
@@ -409,46 +443,6 @@ a.pcard:hover .pcard-title { text-decoration: underline; }
 }
 
 /* blog list */
-
-.blog-bg {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-}
-
-.scribble {
-  fill: none;
-  stroke: rgba(64, 214, 138, 0.2);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  animation-name: scribble-draw;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-.pen-dot {
-  fill: rgba(64, 214, 138, 0.4);
-  animation-name: pen-fade;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-@keyframes scribble-draw {
-  0% { stroke-dashoffset: var(--len); }
-  35% { stroke-dashoffset: 0; }
-  55% { stroke-dashoffset: 0; }
-  90% { stroke-dashoffset: calc(-1 * var(--len)); }
-  100% { stroke-dashoffset: var(--len); }
-}
-
-@keyframes pen-fade {
-  0%, 30% { opacity: 1; }
-  45%, 100% { opacity: 0; }
-}
 
 .blog-intro {
   font-size: 0.9rem;
