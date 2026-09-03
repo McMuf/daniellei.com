@@ -8,6 +8,12 @@ import {
   SiNumpy,
   SiPandas,
   SiScipy,
+  SiJavascript,
+  SiHtml5,
+  SiCss,
+  SiVite,
+  SiNextdotjs,
+  SiFastapi,
 } from 'react-icons/si'
 import { FaLinkedin, FaGithub, FaInstagram } from 'react-icons/fa'
 
@@ -22,10 +28,16 @@ export const TAG_ICONS: Record<string, IconType> = {
   NumPy: SiNumpy,
   Pandas: SiPandas,
   SciPy: SiScipy,
+  JavaScript: SiJavascript,
+  HTML: SiHtml5,
+  CSS: SiCss,
+  Vite: SiVite,
+  'Next.js': SiNextdotjs,
+  FastAPI: SiFastapi,
 }
 
-// Official brand hex per icon. Vercel/GitHub ship as near-black, which
-// disappears on this site's dark background, so those two are swapped for
+// Official brand hex per icon. Vercel/GitHub/Next.js ship as near-black,
+// which disappears on this site's dark background, so those are swapped for
 // their documented light/dark-mode variant instead of the literal brand
 // black. NumPy/Pandas similarly swap their very dark navy for the lighter
 // accent color already present in their own two-tone logos.
@@ -38,6 +50,12 @@ export const TAG_ICON_COLORS: Record<string, string> = {
   NumPy: '#4DABCF',
   Pandas: '#E70488',
   SciPy: '#8CAAE6',
+  JavaScript: '#F7DF1E',
+  HTML: '#E34F26',
+  CSS: '#1572B6',
+  Vite: '#BD34FE',
+  'Next.js': '#FFFFFF',
+  FastAPI: '#009688',
 }
 
 export const SOCIAL_ICONS: Record<string, IconType> = {
