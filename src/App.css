@@ -413,6 +413,52 @@ main {
 }
 .mt-detail-text { margin-top: 3px; font-size: 0.82rem; color: var(--fg); line-height: 1.6; }
 
+.mt-math {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.mt-math summary {
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  list-style: none;
+}
+.mt-math summary::-webkit-details-marker { display: none; }
+.mt-math summary::before { content: '▸ '; color: var(--accent); }
+.mt-math[open] summary::before { content: '▾ '; }
+.mt-math summary:hover { color: var(--fg); }
+
+.mt-math-p {
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--fg);
+  line-height: 1.65;
+}
+.mt-math-legend { color: var(--muted); font-size: 0.72rem; margin-top: 4px; }
+
+.mt-eq {
+  margin-top: 8px;
+  padding: 10px 4px;
+  overflow-x: auto;
+  color: var(--fg);
+}
+.mt-eq .katex { font-size: 0.95rem; color: var(--fg); }
+
+.mt-weights {
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+.mt-weights th, .mt-weights td {
+  text-align: left;
+  padding: 4px 16px 4px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg);
+}
+.mt-weights th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.64rem; letter-spacing: 0.04em; }
+
 .latest-report { margin-top: 32px; }
 
 .latest-report-card {
