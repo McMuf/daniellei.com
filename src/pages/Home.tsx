@@ -1,16 +1,40 @@
 import { Link } from 'react-router-dom'
-import { profile } from '../data/profile'
 import { posts } from '../lib/posts'
 import AsciiSpaceship from '../components/AsciiSpaceship'
+import { WaterlooIcon, FaInstagram } from '../components/icons'
 
 export default function Home() {
   const latest = posts[0]
 
   return (
     <div className="home">
-      {profile.bio.map((p, i) => (
-        <p key={i} className="home-bio">{p}</p>
-      ))}
+      <img src="/myself.png" alt="Daniel Lei" className="home-photo" />
+
+      <p className="home-bio">
+        i am a first year cs + finance student (cfm) at the{' '}
+        <WaterlooIcon className="inline-icon" />{' '}
+        <a
+          href="https://uwaterloo.ca/future-students/programs/computing-and-financial-management"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hlink"
+        >
+          University of Waterloo
+        </a>.
+      </p>
+      <p className="home-bio">
+        i am also a tech and gym enthusiast (
+        <FaInstagram className="inline-icon" aria-hidden="true" />
+        <a
+          href="https://www.instagram.com/dandoesrepz/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hlink"
+        >
+          @dandoesrepz
+        </a>
+        ).
+      </p>
 
       <AsciiSpaceship />
 

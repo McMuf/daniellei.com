@@ -1,4 +1,5 @@
 import { projects } from '../data/projects'
+import { TAG_ICONS } from '../components/icons'
 
 export default function Projects() {
   return (
@@ -16,7 +17,12 @@ export default function Projects() {
             <p className="pcard-desc">{p.description}</p>
             {p.tags && (
               <p className="pcard-tags">
-                {p.tags.map(t => <span key={t} className="tag">[{t}]</span>)}
+                {p.tags.map(t => {
+                  const Icon = TAG_ICONS[t]
+                  return Icon
+                    ? <Icon key={t} className="tag-icon" title={t} aria-label={t} />
+                    : <span key={t} className="tag">{t}</span>
+                })}
               </p>
             )}
           </Wrapper>

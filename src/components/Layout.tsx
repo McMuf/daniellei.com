@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { profile } from '../data/profile'
 import CommandPalette, { shortcutLabel } from './CommandPalette'
+import { SOCIAL_ICONS } from './icons'
 
 const TABS = [
   { to: '/work', label: 'work' },
@@ -14,7 +15,6 @@ export default function Layout() {
     <main>
       <header className="plain-header">
         <h1><Link to="/">{profile.name}</Link></h1>
-        <p className="tagline">{profile.tagline}</p>
 
         <nav className="plain-nav">
           {TABS.map((t, i) => (
@@ -33,12 +33,17 @@ export default function Layout() {
       </div>
 
       <footer className="plain-footer">
-        {profile.social.map((s, i) => (
-          <Fragment key={s.label}>
-            {i > 0 && <span className="sep"> · </span>}
-            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
-          </Fragment>
-        ))}
+        {profile.social.map((s, i) => {
+          const Icon = SOCIAL_ICONS[s.label]
+          return (
+            <Fragment key={s.label}>
+              {i > 0 && <span className="sep"> · </span>}
+              <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
+                {Icon ? <Icon className="social-icon" /> : s.label}
+              </a>
+            </Fragment>
+          )
+        })}
         <span className="sep"> · </span>
         <a href={`mailto:${profile.email}`}>{profile.email}</a>
       </footer>
