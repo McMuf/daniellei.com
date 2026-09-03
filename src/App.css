@@ -353,14 +353,14 @@ main {
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.8;
-  color: rgba(64, 214, 138, 0.05);
+  color: rgba(64, 214, 138, 0.14);
   white-space: nowrap;
   animation-name: terminal-scroll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 
-.terminal-cmd { color: rgba(64, 214, 138, 0.09); }
+.terminal-cmd { color: rgba(64, 214, 138, 0.25); }
 
 @keyframes terminal-scroll {
   from { transform: translateY(0); }
@@ -404,7 +404,7 @@ main {
   width: 100vw;
   height: 100vh;
   pointer-events: none;
-  opacity: 0.14;
+  opacity: 0.39;
 }
 
 .project-grid {
