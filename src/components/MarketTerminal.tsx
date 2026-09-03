@@ -150,7 +150,7 @@ export default function MarketTerminal() {
       </div>
 
       <div className="mt-app">
-        <p className="mt-caption">made up stock performance indicator for my basic stats</p>
+        <p className="mt-caption">stock performance indicator for my basic stats</p>
 
         <div className="mt-search">
           <span className="mt-caret">&gt;</span>
