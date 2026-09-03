@@ -1,7 +1,7 @@
 import { jobs } from '../data/experience'
 import TerminalBackground from '../components/TerminalBackground'
 
-export default function Work() {
+export default function Experience() {
   return (
     <>
       <TerminalBackground />

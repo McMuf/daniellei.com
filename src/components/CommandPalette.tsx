@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { profile } from '../data/profile'
 import { posts } from '../lib/posts'
@@ -8,6 +9,7 @@ type Command = {
   label: string
   hint?: string
   group: string
+  keywords?: string
   run: () => void
 }
 
@@ -24,7 +26,7 @@ export default function CommandPalette() {
   const commands = useMemo<Command[]>(() => {
     const nav: Command[] = [
       { id: 'home', label: 'home', group: 'go', run: () => navigate('/') },
-      { id: 'work', label: 'work', group: 'go', run: () => navigate('/work') },
+      { id: 'experiences', label: 'experiences', group: 'go', run: () => navigate('/experiences') },
       { id: 'projects', label: 'projects', group: 'go', run: () => navigate('/projects') },
       { id: 'blog', label: 'blog', group: 'go', run: () => navigate('/blog') },
     ]
@@ -46,6 +48,7 @@ export default function CommandPalette() {
         id: 'email',
         label: profile.email,
         group: 'link',
+        keywords: 'email contact mail',
         run: () => { window.location.href = `mailto:${profile.email}` },
       },
     ]
@@ -55,7 +58,11 @@ export default function CommandPalette() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return commands
-    return commands.filter(c => c.label.toLowerCase().includes(q) || c.group.includes(q))
+    return commands.filter(c =>
+      c.label.toLowerCase().includes(q) ||
+      c.group.includes(q) ||
+      c.keywords?.includes(q),
+    )
   }, [commands, query])
 
   const close = () => {
@@ -111,7 +118,7 @@ export default function CommandPalette() {
         {shortcutLabel}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div className="cmdk-backdrop" onClick={close}>
           <div
             className="cmdk-panel"
@@ -144,7 +151,8 @@ export default function CommandPalette() {
               ))}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )

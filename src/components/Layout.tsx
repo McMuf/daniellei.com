@@ -5,7 +5,7 @@ import CommandPalette, { shortcutLabel } from './CommandPalette'
 import { SOCIAL_ICONS, SOCIAL_ICON_COLORS } from './icons'
 
 const TABS = [
-  { to: '/work', label: 'work' },
+  { to: '/experiences', label: 'experiences' },
   { to: '/projects', label: 'projects' },
   { to: '/blog', label: 'blog' },
 ]
@@ -49,15 +49,12 @@ export default function Layout() {
 
       <footer className="plain-footer">
         <div className="footer-social">
-          {profile.social.map((s, i) => {
+          {profile.social.map(s => {
             const Icon = SOCIAL_ICONS[s.label]
             return (
-              <Fragment key={s.label}>
-                {i > 0 && <span className="sep"> · </span>}
-                <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
-                  {Icon ? <Icon className="social-icon" color={SOCIAL_ICON_COLORS[s.label]} /> : s.label}
-                </a>
-              </Fragment>
+              <a key={s.label} href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label} title={s.label}>
+                {Icon ? <Icon className="social-icon" color={SOCIAL_ICON_COLORS[s.label]} /> : s.label}
+              </a>
             )
           })}
         </div>

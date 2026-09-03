@@ -1,4 +1,4 @@
-// Decorative, work-page-only background: a few columns of a fake build/
+// Decorative, experiences-page-only background: a few columns of a fake build/
 // deploy log scrolling upward at their own speed, like `tail -f` panes.
 // Pure CSS loop (each column renders its lines twice back-to-back and
 // translates by -50%) so nothing needs to run in JS.

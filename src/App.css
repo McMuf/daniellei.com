@@ -76,7 +76,9 @@ main {
 .cmdk-panel {
   width: min(520px, calc(100% - 40px));
   max-height: 60vh;
-  background: var(--bg);
+  background: rgba(10, 16, 15, 0.82);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid var(--line);
   border-radius: 6px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
@@ -158,7 +160,7 @@ main {
   flex-wrap: wrap;
   gap: 10px 20px;
 }
-.footer-social { display: flex; align-items: center; }
+.footer-social { display: flex; align-items: center; gap: 16px; }
 .plain-footer a { color: var(--muted); display: inline-flex; align-items: center; }
 .plain-footer a:hover { color: var(--link); }
 .footer-email { margin-left: auto; }
@@ -342,7 +344,7 @@ main {
 .latest-report-title:hover { text-decoration: underline; }
 .latest-report-summary { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 4px; line-height: 1.6; }
 
-/* work */
+/* experience */
 
 .terminal-bg {
   position: fixed;
