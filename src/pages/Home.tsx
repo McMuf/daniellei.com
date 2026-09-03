@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
-import AsciiSpaceship from '../components/AsciiSpaceship'
+import MarketTerminal from '../components/MarketTerminal'
 import CandlestickBackground from '../components/CandlestickBackground'
 import { FaInstagram, INSTAGRAM_COLOR } from '../components/icons'
 
@@ -38,7 +38,7 @@ export default function Home() {
           ).
         </p>
 
-        <AsciiSpaceship />
+        <MarketTerminal />
 
         {latest && (
           <div className="latest-report">
