@@ -9,6 +9,11 @@ main {
 
 /* header */
 
+.plain-header {
+  position: relative;
+  z-index: 1;
+}
+
 .plain-header-top {
   display: flex;
   align-items: flex-start;
@@ -40,7 +45,7 @@ main {
   letter-spacing: 0.02em;
 }
 
-.page { flex: 1; margin-top: 44px; }
+.page { flex: 1; margin-top: 44px; position: relative; z-index: 1; }
 
 /* command palette */
 
@@ -142,6 +147,8 @@ main {
 }
 
 .plain-footer {
+  position: relative;
+  z-index: 1;
   margin-top: 56px;
   font-size: 0.8rem;
   color: var(--muted);
