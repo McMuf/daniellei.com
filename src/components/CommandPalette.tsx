@@ -16,6 +16,20 @@ type Command = {
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
 export const shortcutLabel = isMac ? '⌘K' : 'Ctrl K'
 
+// window.open() from a global keydown listener gets treated as a popup by
+// some browsers' popup blockers even though it's a direct result of a user
+// keypress. Simulating a real anchor click bypasses that entirely, since
+// browsers never block a target="_blank" link the user "clicked".
+function openInNewTab(url: string) {
+  const a = document.createElement('a')
+  a.href = url
+  a.target = '_blank'
+  a.rel = 'noopener,noreferrer'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+}
+
 export default function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -42,7 +56,7 @@ export default function CommandPalette() {
         id: `social-${s.label}`,
         label: s.label,
         group: 'link',
-        run: () => window.open(s.url, '_blank', 'noopener,noreferrer'),
+        run: () => openInNewTab(s.url),
       })),
       {
         id: 'email',
