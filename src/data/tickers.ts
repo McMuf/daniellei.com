@@ -9,7 +9,7 @@ export type TickerEntry = {
   isIndex?: boolean
 }
 
-// Fully made up — a tiny "personal market" instead of real companies. Numbers,
+// Fully made up: a tiny "personal market" instead of real companies. Numbers,
 // trends, and everything else here are just for fun, not real measurements.
 export const TICKERS: TickerEntry[] = [
   {
@@ -39,8 +39,8 @@ export const TICKERS: TickerEntry[] = [
   {
     ticker: 'CODE',
     name: 'GitHub Activity Index',
-    blurb: 'real push activity across my public repos — this whole site included.',
-    fact: "couldn't reach GitHub right now — click the ticker to see the real thing.",
+    blurb: 'real push activity across my public repos, this whole site included.',
+    fact: "couldn't reach GitHub right now. click the ticker to see the real thing.",
     basePrice: 205.70,
     changePct: 1.9,
     url: 'https://github.com/McMuf',
@@ -48,7 +48,7 @@ export const TICKERS: TickerEntry[] = [
   {
     ticker: 'DNL',
     name: 'Daniel Composite Index',
-    blurb: 'a blended index of everything above — basically the S&P 500 of me.',
+    blurb: 'a blended index of everything above, basically the S&P 500 of me.',
     fact: "weighted more toward caffeine than i'd like to admit.",
     basePrice: 1284.60,
     changePct: 1.7,

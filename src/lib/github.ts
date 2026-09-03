@@ -15,11 +15,11 @@ function dayKey(d: Date) {
   return d.toISOString().slice(0, 10)
 }
 
-// Real, public, unauthenticated data — GitHub's events API only covers the
+// Real, public, unauthenticated data. GitHub's events API only covers the
 // last ~90 days of *public* activity, so this undercounts private-repo work.
 // As of the current API, PushEvent payloads no longer expose a commit count
-// or list, so this counts pushes (not individual commits) per day — still a
-// genuine, non-fake signal of how often I'm shipping code.
+// or list, so this counts pushes (not individual commits) per day, which is
+// still a genuine, non-fake signal of how often I'm shipping code.
 export async function fetchGithubActivity(username: string): Promise<GithubActivity> {
   const res = await fetch(`https://api.github.com/users/${username}/events/public?per_page=100`)
   if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)

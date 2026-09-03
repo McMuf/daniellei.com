@@ -122,9 +122,10 @@ export default function MarketTerminal() {
 
   return (
     <div className="market-terminal">
-      <p className="mt-hint">
-        a tiny, completely made-up "market" tracking stats about me — type a symbol below (or click one), and hit enter
-      </p>
+      <div className="mt-topbar">
+        <span className="mt-topbar-label">DANL EQUITY TERMINAL</span>
+        <span className="mt-topbar-hint">type a symbol, click GO. all data below is made up, for fun</span>
+      </div>
 
       <div className="mt-prompt">
         <span className="mt-caret">&gt;</span>
@@ -134,21 +135,27 @@ export default function MarketTerminal() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') submit() }}
-          placeholder="try: gainz, comic, code…"
+          placeholder="gainz, comic, code..."
           spellCheck={false}
         />
+        <button type="button" className="mt-go" onClick={submit}>GO</button>
       </div>
 
       <div className="mt-picks">
         {QUICK_PICKS.map(t => (
-          <button key={t} type="button" className="tag" onClick={() => show(TICKERS.find(x => x.ticker === t)!)}>
+          <button
+            key={t}
+            type="button"
+            className={`mt-pick${selected.ticker === t ? ' active' : ''}`}
+            onClick={() => show(TICKERS.find(x => x.ticker === t)!)}
+          >
             {t}
           </button>
         ))}
       </div>
 
       {notFound && (
-        <p className="mt-notfound">don't have "{notFound}" — try one of the tickers above.</p>
+        <p className="mt-notfound">not found: "{notFound}". try one of the symbols above.</p>
       )}
 
       <div className="mt-card">
@@ -162,8 +169,8 @@ export default function MarketTerminal() {
           {isCode && (
             <span className={`mt-live ${githubStatus}`}>
               {githubStatus === 'ready' && '● live'}
-              {githubStatus === 'loading' && 'connecting…'}
-              {githubStatus === 'error' && 'offline — showing fallback'}
+              {githubStatus === 'loading' && 'connecting...'}
+              {githubStatus === 'error' && 'offline, showing fallback'}
             </span>
           )}
         </div>
@@ -188,15 +195,24 @@ export default function MarketTerminal() {
           )}
         </div>
         <Sparkline points={displaySpark} up={up} />
-        <p className="mt-blurb">{selected.blurb}</p>
-        <p className="mt-fact">
-          {isCode && githubStatus === 'loading' && 'loading live activity from GitHub…'}
-          {isCode && codeIsLive && `${githubData!.pushesThisWeek} pushes to public repos in the last 7 days — pulled live from GitHub.`}
-          {(!isCode || githubStatus === 'error') && selected.fact}
-        </p>
+
+        <div className="mt-fields">
+          <div className="mt-field">
+            <span className="mt-field-label">DESCRIPTION</span>
+            <span className="mt-field-value">{selected.blurb}</span>
+          </div>
+          <div className="mt-field">
+            <span className="mt-field-label">NOTE</span>
+            <span className="mt-field-value">
+              {isCode && githubStatus === 'loading' && 'loading live activity from GitHub...'}
+              {isCode && codeIsLive && `${githubData!.pushesThisWeek} pushes to public repos in the last 7 days, pulled live from GitHub.`}
+              {(!isCode || githubStatus === 'error') && selected.fact}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <p className="mt-disclaimer">completely made up — not a real market, just for fun</p>
+      <p className="mt-disclaimer">not real data. fully made up, just for fun.</p>
     </div>
   )
 }
