@@ -444,6 +444,40 @@ a.pcard:hover .pcard-title { text-decoration: underline; }
 
 /* blog list */
 
+.type-bg {
+  position: fixed;
+  top: 20vh;
+  left: 5vw;
+  z-index: 0;
+  max-width: 640px;
+  font-family: 'VT323', var(--font-mono);
+  font-size: 22px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: rgba(64, 214, 138, 0.18);
+  white-space: pre-wrap;
+  pointer-events: none;
+}
+
+.type-cursor {
+  color: rgba(64, 214, 138, 0.5);
+  animation: type-blink 1s step-end infinite;
+}
+
+.type-flash {
+  background: rgba(235, 87, 87, 0.28);
+  border-radius: 2px;
+}
+
+@keyframes type-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .type-bg { display: none; }
+}
+
 .blog-intro {
   font-size: 0.9rem;
   color: var(--muted);
