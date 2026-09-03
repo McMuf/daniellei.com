@@ -44,22 +44,50 @@ function generateSpark(ticker: string, changePct: number, points = 24) {
   return arr
 }
 
-function Sparkline({ points, up }: { points: number[]; up: boolean }) {
-  const w = 160
-  const h = 36
+// Smooths a jagged point series into a rounded curve (quadratic bezier
+// through segment midpoints), the way modern finance-app charts render,
+// rather than a sharp polyline.
+function smoothPath(coords: { x: number; y: number }[]) {
+  if (coords.length < 3) {
+    return coords.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  }
+  let d = `M${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)}`
+  for (let i = 0; i < coords.length - 1; i++) {
+    const p0 = coords[i]
+    const p1 = coords[i + 1]
+    const midX = (p0.x + p1.x) / 2
+    const midY = (p0.y + p1.y) / 2
+    d += ` Q${p0.x.toFixed(1)},${p0.y.toFixed(1)} ${midX.toFixed(1)},${midY.toFixed(1)}`
+  }
+  const last = coords[coords.length - 1]
+  d += ` L${last.x.toFixed(1)},${last.y.toFixed(1)}`
+  return d
+}
+
+function Chart({ points, up, id }: { points: number[]; up: boolean; id: string }) {
+  const w = 320
+  const h = 90
   const min = Math.min(...points)
   const range = Math.max(...points) - min || 1
-  const d = points
-    .map((v, i) => {
-      const x = (i / (points.length - 1)) * w
-      const y = h - ((v - min) / range) * h
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
-    })
-    .join(' ')
+  const coords = points.map((v, i) => ({
+    x: (i / (points.length - 1)) * w,
+    y: h - ((v - min) / range) * (h - 6) - 3,
+  }))
+  const linePath = smoothPath(coords)
+  const areaPath = `${linePath} L${w},${h} L0,${h} Z`
+  const color = up ? 'var(--accent)' : '#eb5757'
+  const gradId = `mt-grad-${id}`
 
   return (
-    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="mt-spark" aria-hidden="true">
-      <path d={d} fill="none" stroke={up ? 'var(--accent)' : '#eb5757'} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="mt-chart" aria-hidden="true">
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#${gradId})`} stroke="none" />
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -77,7 +105,7 @@ export default function MarketTerminal() {
   const [githubData, setGithubData] = useState<GithubActivity | null>(null)
 
   // Fetched once on mount (not just when CODE is selected) so it's already
-  // loaded by the time someone clicks the CODE tab.
+  // loaded by the time someone clicks the CODE symbol.
   useEffect(() => {
     let cancelled = false
     fetchGithubActivity(GITHUB_USERNAME)
@@ -125,73 +153,86 @@ export default function MarketTerminal() {
       ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
       : price.toFixed(2)
 
+  const changeAmount = (price * (displayChangePct / 100))
+
   return (
     <div className="market-terminal">
-      <div className="mt-cmdbar">
-        <span className="mt-caret">&gt;</span>
-        <input
-          ref={inputRef}
-          className="mt-input"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') submit() }}
-          placeholder="gainz, comic, code..."
-          spellCheck={false}
-        />
-        <button type="button" className="mt-go" onClick={submit}>GO</button>
+      <div className="mt-titlebar">
+        <span className="mt-dots"><i className="r" /><i className="y" /><i className="g" /></span>
+        <span className="mt-titlebar-text">daniel@site:~ market.sh</span>
       </div>
 
-      <div className="mt-tickerrow">
-        <span className="mt-ticker">
-          {selected.url
-            ? <a href={selected.url} target="_blank" rel="noopener noreferrer">{selected.ticker} DL</a>
-            : `${selected.ticker} DL`}
-        </span>
+      <div className="mt-app">
+        <p className="mt-caption">made up stock performance indicator for my basic stats</p>
+
+        <div className="mt-search">
+          <span className="mt-caret">&gt;</span>
+          <input
+            ref={inputRef}
+            className="mt-input"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') submit() }}
+            placeholder="search a symbol: gainz, comic, code..."
+            spellCheck={false}
+          />
+          <button type="button" className="mt-submit" onClick={submit} aria-label="Look up symbol">&gt;</button>
+        </div>
+
+        {notFound && (
+          <p className="mt-notfound">not found: "{notFound}". try one of the symbols below.</p>
+        )}
+
+        <div className="mt-headrow">
+          <span className="mt-chip">{selected.url
+            ? <a href={selected.url} target="_blank" rel="noopener noreferrer">{selected.ticker}</a>
+            : selected.ticker}
+          </span>
+          <span className="mt-headname">{selected.name}</span>
+          {isCode && githubStatus === 'error' && <span className="mt-offline">offline, showing fallback</span>}
+        </div>
+
         {isCode && githubStatus === 'loading' ? (
-          <span className="mt-price mt-price-loading">···</span>
+          <div className="mt-pricebig mt-price-loading">···</div>
         ) : (
           <>
-            <span className="mt-price">{displayPrice} <span className="mt-unit">{selected.unit}</span></span>
-            <span className={`mt-change ${up ? 'up' : 'down'}`}>
-              {up ? '+' : ''}{displayChangePct.toFixed(1)}%
-            </span>
+            <div className="mt-pricebig">
+              {displayPrice}<span className="mt-unit"> {selected.unit}</span>
+            </div>
+            <div className={`mt-changerow ${up ? 'up' : 'down'}`}>
+              {up ? '+' : ''}{isCode ? '' : `${changeAmount.toFixed(2)} `}({up ? '+' : ''}{displayChangePct.toFixed(1)}%) {isCode ? 'this week' : 'today'}
+            </div>
           </>
         )}
+
+        <Chart points={displaySpark} up={up} id={selected.ticker} />
+
+        <div className="mt-symbols">
+          {TICKERS.map(t => (
+            <button
+              key={t.ticker}
+              type="button"
+              className={`mt-symbol${selected.ticker === t.ticker ? ' active' : ''}`}
+              onClick={() => show(t)}
+            >
+              {t.ticker}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-detail">
+          <span className="mt-detail-label">about</span>
+          <p className="mt-detail-text">{selected.blurb}</p>
+        </div>
+        <div className="mt-detail">
+          <span className="mt-detail-label">note</span>
+          <p className="mt-detail-text">
+            {isCode && githubStatus === 'loading' && 'loading live activity from GitHub...'}
+            {isCode && codeIsLive && `${githubData!.pushesThisWeek} pushes to public repos in the last 7 days, pulled live from GitHub.`}
+            {(!isCode || githubStatus === 'error') && selected.fact}
+          </p>
+        </div>
       </div>
-
-      <div className="mt-bar">{selected.name.toUpperCase()}</div>
-
-      <div className="mt-tabs">
-        {TICKERS.map((t, i) => (
-          <button
-            key={t.ticker}
-            type="button"
-            className={`mt-tab${selected.ticker === t.ticker ? ' active' : ''}`}
-            onClick={() => show(t)}
-          >
-            <span className="mt-tab-num">{i + 1})</span> {t.ticker}
-          </button>
-        ))}
-      </div>
-
-      {notFound && (
-        <p className="mt-notfound">not found: "{notFound}". try one of the symbols above.</p>
-      )}
-
-      <Sparkline points={displaySpark} up={up} />
-
-      <div className="mt-bar">DESCRIPTION</div>
-      <p className="mt-row"><span className="mt-row-num">11)</span> {selected.blurb}</p>
-
-      <div className="mt-bar">NOTE</div>
-      <p className="mt-row">
-        <span className="mt-row-num">21)</span>{' '}
-        {isCode && githubStatus === 'loading' && 'loading live activity from GitHub...'}
-        {isCode && codeIsLive && `${githubData!.pushesThisWeek} pushes to public repos in the last 7 days, pulled live from GitHub.`}
-        {(!isCode || githubStatus === 'error') && selected.fact}
-      </p>
-
-      <p className="mt-disclaimer">not real data. fully made up, just for fun.</p>
     </div>
   )
 }

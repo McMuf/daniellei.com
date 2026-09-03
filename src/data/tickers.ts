@@ -18,7 +18,7 @@ export const TICKERS: TickerEntry[] = [
     name: 'Gains Index',
     blurb: "a rough read on how consistent i've been in the gym lately.",
     fact: 'personally verified: creatine does, in fact, do something.',
-    basePrice: 142.30,
+    basePrice: 163.00,
     changePct: 2.6,
     unit: 'lbs',
   },
