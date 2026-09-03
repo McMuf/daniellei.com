@@ -333,6 +333,16 @@ main {
 .mt-name { font-size: 0.8rem; color: var(--muted); }
 .mt-pts { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
 
+.mt-live {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+.mt-live.ready { color: var(--accent); }
+.mt-live.error { color: #eb5757; }
+
+.mt-price-loading { color: var(--muted); letter-spacing: 0.1em; }
+
 .mt-price-row {
   margin-top: 4px;
   display: flex;

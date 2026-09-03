@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TICKERS, type TickerEntry } from '../data/tickers'
+import { fetchGithubActivity, type GithubActivity } from '../lib/github'
 
 const QUICK_PICKS = ['GAINZ', 'CMIX', 'CAFN', 'CODE', 'DNL']
+const GITHUB_USERNAME = 'McMuf'
 
 function findTicker(query: string): TickerEntry | undefined {
   const q = query.trim().toLowerCase()
@@ -63,6 +65,8 @@ function Sparkline({ points, up }: { points: number[]; up: boolean }) {
   )
 }
 
+type GithubStatus = 'loading' | 'ready' | 'error'
+
 export default function MarketTerminal() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<TickerEntry>(TICKERS[0])
@@ -70,8 +74,26 @@ export default function MarketTerminal() {
   const [notFound, setNotFound] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [githubStatus, setGithubStatus] = useState<GithubStatus>('loading')
+  const [githubData, setGithubData] = useState<GithubActivity | null>(null)
+
+  // Fetched once on mount (not just when CODE is selected) so it's already
+  // loaded by the time someone clicks the CODE chip.
+  useEffect(() => {
+    let cancelled = false
+    fetchGithubActivity(GITHUB_USERNAME)
+      .then(data => { if (!cancelled) { setGithubData(data); setGithubStatus('ready') } })
+      .catch(() => { if (!cancelled) setGithubStatus('error') })
+    return () => { cancelled = true }
+  }, [])
+
+  const isCode = selected.ticker === 'CODE'
+  const codeIsLive = isCode && githubStatus === 'ready' && githubData !== null
+
   const spark = useMemo(() => generateSpark(selected.ticker, selected.changePct), [selected])
-  const up = selected.changePct >= 0
+  const displaySpark = codeIsLive ? githubData!.spark : spark
+  const displayChangePct = codeIsLive ? githubData!.changePct : selected.changePct
+  const up = displayChangePct >= 0
 
   function show(entry: TickerEntry) {
     setSelected(entry)
@@ -137,21 +159,41 @@ export default function MarketTerminal() {
               : selected.ticker}
           </span>
           <span className="mt-name">{selected.name}</span>
+          {isCode && (
+            <span className={`mt-live ${githubStatus}`}>
+              {githubStatus === 'ready' && '● live'}
+              {githubStatus === 'loading' && 'connecting…'}
+              {githubStatus === 'error' && 'offline — showing fallback'}
+            </span>
+          )}
         </div>
         <div className="mt-price-row">
-          <span className="mt-price">
-            {selected.isIndex
-              ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-              : `$${price.toFixed(2)}`}
-            {selected.isIndex && <span className="mt-pts"> pts</span>}
-          </span>
-          <span className={`mt-change ${up ? 'up' : 'down'}`}>
-            {up ? '▲' : '▼'} {Math.abs(selected.changePct).toFixed(1)}% today
-          </span>
+          {isCode && githubStatus === 'loading' ? (
+            <span className="mt-price mt-price-loading">···</span>
+          ) : (
+            <>
+              <span className="mt-price">
+                {isCode
+                  ? codeIsLive ? githubData!.pushesThisWeek : price.toFixed(0)
+                  : selected.isIndex
+                    ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : `$${price.toFixed(2)}`}
+                {isCode && <span className="mt-pts"> pushes/wk</span>}
+                {selected.isIndex && <span className="mt-pts"> pts</span>}
+              </span>
+              <span className={`mt-change ${up ? 'up' : 'down'}`}>
+                {up ? '▲' : '▼'} {Math.abs(displayChangePct).toFixed(1)}% {isCode ? 'week/week' : 'today'}
+              </span>
+            </>
+          )}
         </div>
-        <Sparkline points={spark} up={up} />
+        <Sparkline points={displaySpark} up={up} />
         <p className="mt-blurb">{selected.blurb}</p>
-        <p className="mt-fact">{selected.fact}</p>
+        <p className="mt-fact">
+          {isCode && githubStatus === 'loading' && 'loading live activity from GitHub…'}
+          {isCode && codeIsLive && `${githubData!.pushesThisWeek} pushes to public repos in the last 7 days — pulled live from GitHub.`}
+          {(!isCode || githubStatus === 'error') && selected.fact}
+        </p>
       </div>
 
       <p className="mt-disclaimer">completely made up — not a real market, just for fun</p>

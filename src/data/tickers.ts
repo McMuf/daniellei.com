@@ -39,8 +39,8 @@ export const TICKERS: TickerEntry[] = [
   {
     ticker: 'CODE',
     name: 'GitHub Activity Index',
-    blurb: 'commit activity across my repos — this whole site included.',
-    fact: 'click the ticker to see the real thing.',
+    blurb: 'real push activity across my public repos — this whole site included.',
+    fact: "couldn't reach GitHub right now — click the ticker to see the real thing.",
     basePrice: 205.70,
     changePct: 1.9,
     url: 'https://github.com/McMuf',
