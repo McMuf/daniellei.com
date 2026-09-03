@@ -45,7 +45,7 @@ main {
   letter-spacing: 0.02em;
 }
 
-.page { flex: 1; margin-top: 44px; position: relative; z-index: 1; }
+.page { flex: 1; margin-top: 44px; }
 
 /* command palette */
 

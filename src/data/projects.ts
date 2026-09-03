@@ -18,7 +18,7 @@ export const projects: Project[] = [
   {
     title: 'Ballify',
     description: 'Tracks NBA players and teams using a financial-market model — stat tickers, sentiment analysis, live win-probability calculations, and betting-style odds, gamifying basketball statistics like a stock exchange. FastAPI backend with a Next.js frontend, pulling in Reddit sentiment and betting-odds data.',
-    url: 'https://ballify-app.com',
+    url: 'https://github.com/McMuf/ballify-app',
     tags: ['Python', 'FastAPI', 'Next.js', 'Vercel'],
     year: '2026',
   },
