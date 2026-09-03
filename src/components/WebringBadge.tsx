@@ -18,7 +18,7 @@ export default function WebringBadge() {
         className="webring-zigzag"
         points="140,850 280,770 220,700 400,590 340,540 540,410 480,370 680,260 620,230 860,140"
         fill="none"
-        strokeWidth="24"
+        strokeWidth="120"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
