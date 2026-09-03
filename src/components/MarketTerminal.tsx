@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TICKERS, type TickerEntry } from '../data/tickers'
 
-const QUICK_PICKS = ['AAPL', 'TSLA', 'NVDA', 'GOOGL', 'NFLX', 'NKE']
+const QUICK_PICKS = ['GAINZ', 'CMIX', 'CAFN', 'CODE', 'DNL']
 
 function findTicker(query: string): TickerEntry | undefined {
   const q = query.trim().toLowerCase()
@@ -101,7 +101,7 @@ export default function MarketTerminal() {
   return (
     <div className="market-terminal">
       <p className="mt-hint">
-        this is a tiny stock ticker — type a company name or symbol below (or click one), and hit enter
+        a tiny, completely made-up "market" tracking stats about me — type a symbol below (or click one), and hit enter
       </p>
 
       <div className="mt-prompt">
@@ -112,7 +112,7 @@ export default function MarketTerminal() {
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter') submit() }}
-          placeholder="try: apple, TSLA, nike…"
+          placeholder="try: gainz, comic, code…"
           spellCheck={false}
         />
       </div>
@@ -131,11 +131,20 @@ export default function MarketTerminal() {
 
       <div className="mt-card">
         <div className="mt-card-head">
-          <span className="mt-ticker">{selected.ticker}</span>
+          <span className="mt-ticker">
+            {selected.url
+              ? <a href={selected.url} target="_blank" rel="noopener noreferrer">{selected.ticker}</a>
+              : selected.ticker}
+          </span>
           <span className="mt-name">{selected.name}</span>
         </div>
         <div className="mt-price-row">
-          <span className="mt-price">${price.toFixed(2)}</span>
+          <span className="mt-price">
+            {selected.isIndex
+              ? price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              : `$${price.toFixed(2)}`}
+            {selected.isIndex && <span className="mt-pts"> pts</span>}
+          </span>
           <span className={`mt-change ${up ? 'up' : 'down'}`}>
             {up ? '▲' : '▼'} {Math.abs(selected.changePct).toFixed(1)}% today
           </span>
@@ -145,7 +154,7 @@ export default function MarketTerminal() {
         <p className="mt-fact">{selected.fact}</p>
       </div>
 
-      <p className="mt-disclaimer">sample data, not live prices — just for fun</p>
+      <p className="mt-disclaimer">completely made up — not a real market, just for fun</p>
     </div>
   )
 }

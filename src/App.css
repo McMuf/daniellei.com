@@ -328,7 +328,10 @@ main {
   gap: 8px;
 }
 .mt-ticker { font-size: 0.95rem; font-weight: 700; color: var(--link); }
+.mt-ticker a { color: inherit; text-decoration: none; }
+.mt-ticker a:hover { text-decoration: underline; }
 .mt-name { font-size: 0.8rem; color: var(--muted); }
+.mt-pts { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
 
 .mt-price-row {
   margin-top: 4px;
