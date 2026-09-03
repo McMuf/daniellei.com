@@ -1,5 +1,4 @@
 import type { IconType } from 'react-icons'
-import type { SVGProps } from 'react'
 import {
   SiTypescript,
   SiReact,
@@ -54,23 +53,3 @@ export const SOCIAL_ICON_COLORS: Record<string, string> = {
 export const INSTAGRAM_COLOR = '#E4405F'
 
 export { FaInstagram }
-
-// No official crest mark exists in any icon set, so this is a small
-// original shield glyph rather than a reproduction of UW's actual crest.
-export function WaterlooIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      viewBox="0 0 24 28"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M2 3.6 12 1l10 2.6v8.8c0 6.9-4.4 11.3-10 14.2-5.6-2.9-10-7.3-10-14.2Z" />
-      <path d="M7.2 12.6 10.6 16 17 9.2" />
-    </svg>
-  )
-}

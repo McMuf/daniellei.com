@@ -1,18 +1,16 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
 import AsciiSpaceship from '../components/AsciiSpaceship'
-import { WaterlooIcon, FaInstagram, INSTAGRAM_COLOR } from '../components/icons'
+import { FaInstagram, INSTAGRAM_COLOR } from '../components/icons'
 
 export default function Home() {
   const latest = posts[0]
 
   return (
     <div className="home">
-      <img src="/myself.png" alt="Daniel Lei" className="home-photo" />
-
       <p className="home-bio">
         i am a first year cs + finance student (cfm) at the{' '}
-        <WaterlooIcon className="inline-icon" color="#FFC72C" />{' '}
+        <img src="/waterloo.png" alt="" className="inline-icon" />{' '}
         <a
           href="https://uwaterloo.ca/future-students/programs/computing-and-financial-management"
           target="_blank"
@@ -23,7 +21,7 @@ export default function Home() {
         </a>.
       </p>
       <p className="home-bio">
-        i am also a tech and gym enthusiast (
+        i am also an AI, equity research, and gym enthusiast (
         <FaInstagram className="inline-icon" color={INSTAGRAM_COLOR} aria-hidden="true" />
         <a
           href="https://www.instagram.com/dandoesrepz/"
