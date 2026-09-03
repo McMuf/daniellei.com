@@ -43,7 +43,7 @@ export default function Post() {
     return (
       <div className="post-missing">
         <p>report not found.</p>
-        <Link to="/writing" className="hlink">← back to writing</Link>
+        <Link to="/blog" className="hlink">← back to blog</Link>
       </div>
     )
   }
@@ -52,7 +52,7 @@ export default function Post() {
     <div className="post">
       {headings.length > 0 && (
         <aside className="post-nav">
-          <Link to="/writing" className="post-back">← back</Link>
+          <Link to="/blog" className="post-back">← back</Link>
           <nav>
             {headings.map(h => (
               <a key={h.id} href={`#${h.id}`} className={active === h.id ? 'active' : ''}>{h.text}</a>
@@ -61,7 +61,7 @@ export default function Post() {
         </aside>
       )}
       <article className="post-body" ref={articleRef}>
-        {headings.length === 0 && <Link to="/writing" className="post-back">← back</Link>}
+        {headings.length === 0 && <Link to="/blog" className="post-back">← back</Link>}
         <h1>{post.title}</h1>
         <p className="post-meta">
           {post.date}{post.sector ? ` · [${post.sector}]` : ''}

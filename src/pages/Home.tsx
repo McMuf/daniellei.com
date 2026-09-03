@@ -43,7 +43,7 @@ export default function Home() {
         {latest && (
           <div className="latest-report">
             <p className="section-label">latest report</p>
-            <Link to={`/writing/${latest.slug}`} className="latest-report-card">
+            <Link to={`/blog/${latest.slug}`} className="latest-report-card">
               <span className="latest-report-meta">
                 {latest.date}{latest.sector ? ` · [${latest.sector}]` : ''}
               </span>

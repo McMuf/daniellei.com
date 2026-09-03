@@ -7,7 +7,7 @@ import { SOCIAL_ICONS, SOCIAL_ICON_COLORS } from './icons'
 const TABS = [
   { to: '/work', label: 'work' },
   { to: '/projects', label: 'projects' },
-  { to: '/writing', label: 'writing' },
+  { to: '/blog', label: 'blog' },
 ]
 
 // "danielmdlei@gmail.com" -> "danielmdlei[at]gmail[dot]com", to keep the

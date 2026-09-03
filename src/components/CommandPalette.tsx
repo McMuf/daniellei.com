@@ -26,14 +26,14 @@ export default function CommandPalette() {
       { id: 'home', label: 'home', group: 'go', run: () => navigate('/') },
       { id: 'work', label: 'work', group: 'go', run: () => navigate('/work') },
       { id: 'projects', label: 'projects', group: 'go', run: () => navigate('/projects') },
-      { id: 'writing', label: 'writing', group: 'go', run: () => navigate('/writing') },
+      { id: 'blog', label: 'blog', group: 'go', run: () => navigate('/blog') },
     ]
-    const writing: Command[] = posts.map(p => ({
+    const blog: Command[] = posts.map(p => ({
       id: `post-${p.slug}`,
       label: p.title,
       hint: p.date,
-      group: 'writing',
-      run: () => navigate(`/writing/${p.slug}`),
+      group: 'blog',
+      run: () => navigate(`/blog/${p.slug}`),
     }))
     const links: Command[] = [
       ...profile.social.map(s => ({
@@ -49,7 +49,7 @@ export default function CommandPalette() {
         run: () => { window.location.href = `mailto:${profile.email}` },
       },
     ]
-    return [...nav, ...writing, ...links]
+    return [...nav, ...blog, ...links]
   }, [navigate])
 
   const results = useMemo(() => {
