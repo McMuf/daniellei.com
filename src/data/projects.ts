@@ -9,10 +9,10 @@ export type Project = {
 // most recent or most notable first
 export const projects: Project[] = [
   {
-    title: 'AsciiStarMine',
-    description: 'ASCII idle/adventure text game. You\'re a contract miner for an interstellar extraction corporation, working an isolated rig, trying to survive quotas, factions, and whatever the anomalous ore actually is. Structure loosely follows A Dark Room: a generic engine (state manager, event scheduler, buttons, notifications) driven entirely by data files under content/, so new events/lore/factions never require touching engine code.',
-    url: 'https://github.com/McMuf/asciistarmine',
-    tags: ['JavaScript', 'HTML', 'CSS', 'Vite'],
+    title: 'OSS Pulse',
+    description: 'Research and data-engineering demonstration testing whether a company\'s public GitHub activity (commit velocity, contributor retention, release cadence) is a real-time-ish signal of engineering health — most defensible for open-core companies where the repo is the product. A controlled replication of a 2026 SSRN paper that found no correlation between GitHub commit spikes and next-day stock volatility across 9 major tech companies; this version tracks open-core companies instead of big-tech flagships, uses longer forward windows, and reports correlation and sample sizes honestly rather than only when they look good. Large-scale ingestion from the GitHub API and yfinance, a from-scratch scoring methodology with documented (not hardcoded) weights, a scheduled CI pipeline, a typed backend API, and a full-stack dashboard, including a backtest. Not a trading system, and nothing on the site is investment advice.',
+    url: 'https://github.com/McMuf/OSS-Pulse',
+    tags: ['Python', 'FastAPI', 'Next.js', 'TypeScript'],
     year: '2026',
   },
   {
@@ -34,5 +34,12 @@ export const projects: Project[] = [
     description: 'Authored 4–6 institutional-style equity research reports, each structured with company overview, competitive positioning, investment thesis, financial analysis, catalysts, and risks. For AMAT: built a DCF model supporting a $590 price target, anchored on the AI WFE supercycle, 25-year-high gross margins (50%), and EPIC Center lock-in across TSMC, Samsung, Micron, and Broadcom.',
     tags: ['Excel', 'DCF', 'Equity Research', 'PowerPoint'],
     year: '2025 — 2026',
+  },
+  {
+    title: 'AsciiStarMine',
+    description: 'ASCII idle/adventure text game. You\'re a contract miner for an interstellar extraction corporation, working an isolated rig, trying to survive quotas, factions, and whatever the anomalous ore actually is. Structure loosely follows A Dark Room: a generic engine (state manager, event scheduler, buttons, notifications) driven entirely by data files under content/, so new events/lore/factions never require touching engine code.',
+    url: 'https://github.com/McMuf/asciistarmine',
+    tags: ['JavaScript', 'HTML', 'CSS', 'Vite'],
+    year: '2026',
   },
 ]
