@@ -569,9 +569,13 @@ main {
   color: var(--fg);
 }
 
+.pcard-title-row { display: flex; align-items: center; gap: 8px; }
 .pcard-title { font-size: 1rem; font-weight: 600; color: var(--link); }
 .pcard-title a { color: inherit; text-decoration: none; }
 .pcard-title a:hover { text-decoration: underline; }
+.pcard-github { display: flex; opacity: 0.75; }
+.pcard-github:hover { opacity: 1; }
+.pcard-github svg { width: 15px; height: 15px; }
 .pcard-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
 .pcard-desc { font-size: 0.88rem; color: var(--fg); line-height: 1.75; margin-top: 6px; }
 .pcard-tags {
