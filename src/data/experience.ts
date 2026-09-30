@@ -14,7 +14,7 @@ export const jobs: Job[] = [
     role: 'Incoming Analyst',
     url: 'https://www.marbleinvestments.ca/',
     period: '2026',
-    description: 'Incoming analyst at Marble Investments, a student-run investment fund at the University of Waterloo with ~$2M USD in assets under management.',
+    description: 'Building a Python-based internal screening tool that scans public data on company activity to map second-order impacts across supply chains, surfacing signals for the equity research team\'s stock recommendations at a ~$2M USD AUM student-run investment fund.',
     current: true,
   },
   {

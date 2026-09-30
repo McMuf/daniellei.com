@@ -10,6 +10,13 @@ export type Project = {
 // most recent or most notable first
 export const projects: Project[] = [
   {
+    title: 'Cospray',
+    description: 'Won Best Mobile Experience Built with Expo at Hack the North 2026. A spatial AR app, think r/place meets Pokémon GO, that turns the real world into a shared multiplayer canvas: shake your phone to build aerosol pressure, then spray digital graffiti anchored to physical walls at real GPS coordinates for friends and strangers to stumble across.',
+    githubUrl: 'https://github.com/McMuf/htn26',
+    tags: ['TypeScript', 'React Native', 'Expo', 'Supabase'],
+    year: '2026',
+  },
+  {
     title: 'OSS Pulse',
     description: 'Tests whether a company\'s public GitHub activity (commit velocity, contributor retention, release cadence) signals engineering health, replicating a 2026 SSRN study that found no such link at big tech firms. Ingests GitHub and stock data into a scored, backtested dashboard. Not investment advice.',
     url: 'https://oss-pulse-five.vercel.app/',
