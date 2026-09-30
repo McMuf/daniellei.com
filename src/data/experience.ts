@@ -11,7 +11,7 @@ export type Job = {
 export const jobs: Job[] = [
   {
     company: 'Marble Investments',
-    role: 'Incoming Analyst',
+    role: 'SWE',
     url: 'https://www.marbleinvestments.ca/',
     period: '2026',
     description: 'Building a Python-based internal screening tool that scans public data on company activity to map second-order impacts across supply chains, surfacing signals for the equity research team\'s stock recommendations at a ~$2M USD AUM student-run investment fund.',
