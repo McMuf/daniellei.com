@@ -67,14 +67,16 @@ A bit of personal news: this term I was onboarded as a software engineer at Marb
 
 Essentially, how it works is as follows: Two stocks can be highly correlated day-to-day and still drift apart forever. What you actually want is cointegration which is a spread between the two prices that keeps getting pulled back toward its average.
 
-```
-Spread:        S_t = P_A,t − β · P_B,t
-Signal:        z_t = (S_t − μ_S) / σ_S
-Trade rule:    if z_t > +2  → short A, long B
-               if z_t < −2  → long A, short B
-               exit when z_t returns near 0
-Mean reversion speed (from ΔS_t = λ · S_(t−1) + ε_t):
-               half-life = −ln(2) / λ
+```math
+\begin{aligned}
+\text{Spread:}\quad & S_t = P_{A,t} - \beta \, P_{B,t} \\[4pt]
+\text{Signal:}\quad & z_t = \frac{S_t - \mu_S}{\sigma_S} \\[4pt]
+\text{Trade rule:}\quad & z_t > +2 \;\Rightarrow\; \text{short } A,\ \text{long } B \\
+& z_t < -2 \;\Rightarrow\; \text{long } A,\ \text{short } B \\
+& z_t \to 0 \;\Rightarrow\; \text{exit} \\[4pt]
+\text{Mean reversion:}\quad & \Delta S_t = \lambda \, S_{t-1} + \varepsilon_t \\
+& \text{half-life} = -\frac{\ln 2}{\lambda}
+\end{aligned}
 ```
 
 With N stocks, there are N(N−1)/2 possible pairs. A universe of 1,000 stocks gives you 499,500 pairs. If you test every one of them for cointegration at a 5% significance level, you'd expect roughly 25,000 pairs to look "cointegrated" by pure chance. A screener that doesn't account for this will happily hand you thousands of fake opportunities.

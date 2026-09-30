@@ -4,7 +4,29 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import GithubSlugger from 'github-slugger'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
+import type { Components } from 'react-markdown'
 import { getPost } from '../lib/posts'
+
+function MathBlock({ tex }: { tex: string }) {
+  const html = useMemo(() => katex.renderToString(tex, { throwOnError: false, displayMode: true }), [tex])
+  return <div className="post-math" dangerouslySetInnerHTML={{ __html: html }} />
+}
+
+// ```math fenced blocks render as display LaTeX. Using a fence instead of
+// remark-math keeps the "$" in dollar amounts from being parsed as math.
+const markdownComponents: Components = {
+  pre({ node, ...props }) {
+    const code = node?.children[0]
+    const cls = code?.type === 'element' ? code.properties.className : undefined
+    if (code?.type === 'element' && Array.isArray(cls) && cls.includes('language-math')) {
+      const tex = code.children.map(c => (c.type === 'text' ? c.value : '')).join('')
+      return <MathBlock tex={tex} />
+    }
+    return <pre {...props} />
+  },
+}
 
 function extractHeadings(markdown: string) {
   const slugger = new GithubSlugger()
@@ -68,7 +90,7 @@ export default function Post() {
         </p>
         {post.summary && <p className="post-sub">{post.summary}</p>}
         <div className="post-content">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]} components={markdownComponents}>
             {post.content}
           </ReactMarkdown>
         </div>

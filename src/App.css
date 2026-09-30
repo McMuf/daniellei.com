@@ -720,6 +720,18 @@ main {
 }
 .post-content pre code { background: none; padding: 0; }
 
+.post-math {
+  background: var(--line);
+  color: var(--accent);
+  padding: 14px 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.post-math .katex-display { margin: 0; }
+.post-math .katex-display > .katex { text-align: left; }
+.post-math .katex { font-size: 1rem; }
+
 .post-missing { display: flex; flex-direction: column; gap: 14px; font-size: 0.9rem; color: var(--muted); }
 
 @media (max-width: 640px) {
