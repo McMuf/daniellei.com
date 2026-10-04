@@ -643,11 +643,11 @@ main {
   text-transform: uppercase;
   color: var(--accent);
   margin: 0 0 10px;
+  text-align: center;
 }
 
 .mindset-box {
   border: 1px solid var(--line);
-  border-left: 2px solid var(--accent-dim);
   border-radius: 4px;
   padding: 14px 18px;
   display: flex;
@@ -708,7 +708,6 @@ main {
   margin-top: 38px;
   margin-bottom: 12px;
   padding-left: 10px;
-  border-left: 2px solid var(--accent-dim);
 }
 .post-content h3 { font-size: 1rem; font-weight: 600; margin-top: 26px; margin-bottom: 10px; }
 .post-content p { font-size: 0.95rem; line-height: 1.85; margin-bottom: 14px; }
