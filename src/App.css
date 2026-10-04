@@ -634,12 +634,34 @@ main {
   .type-bg { display: none; }
 }
 
-.blog-intro {
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.8;
-  margin-bottom: 30px;
+.mindset { margin-bottom: 30px; }
+
+.mindset-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 10px;
+}
+
+.mindset-box {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent-dim);
+  border-radius: 4px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mindset-quote {
+  margin: 0;
+  font-family: var(--font-serif);
   font-style: italic;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--fg);
 }
 
 .blog-empty { font-size: 0.9rem; color: var(--muted); }
