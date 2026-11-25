@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
 import { profile } from '../data/profile'
-import AsciiRunner from '../components/AsciiRunner'
+import GlitchPerch from '../components/GlitchPerch'
 
 const ext = { target: '_blank', rel: 'noopener noreferrer' } as const
 
@@ -10,7 +10,7 @@ export default function Home() {
 
   return (
     <>
-      <AsciiRunner />
+      <GlitchPerch />
 
       <img src="/myself.png" alt="Daniel Lei" className="avatar" />
       <h1>hi, my name is Daniel</h1>
