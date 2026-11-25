@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
-import TypewriterBackground from '../components/TypewriterBackground'
 
 const quotes = [
   "there's grace in simplicity",
@@ -11,25 +10,27 @@ const quotes = [
 export default function Blog() {
   return (
     <>
-      <TypewriterBackground />
-      <div className="blog-list">
-        <section className="mindset">
-          <h2 className="mindset-title">mindset</h2>
-          <div className="mindset-box">
-            {quotes.map(q => (
-              <p key={q} className="mindset-quote">"{q}"</p>
-            ))}
-          </div>
-        </section>
-        {posts.length === 0 && <p className="blog-empty">no reports published yet.</p>}
+      <h1 className="page-title">blog</h1>
+      <p className="page-sub">monthly notes on markets, tech, and whatever else happened</p>
+
+      <section className="mindset">
+        <h2>mindset</h2>
+        {quotes.map(q => (
+          <p key={q} className="quote">“{q}”</p>
+        ))}
+      </section>
+
+      {posts.length === 0 && <p className="page-sub">no posts yet.</p>}
+      <div className="rows">
         {posts.map(p => (
-          <Link key={p.slug} to={`/blog/${p.slug}`} className="blog-item">
-            <span className="blog-item-meta">
-              {p.date}{p.sector ? ` · [${p.sector}]` : ''}
-            </span>
-            <span className="blog-item-title">{p.title}</span>
-            {p.summary && <span className="blog-item-summary">{p.summary}</span>}
-          </Link>
+          <article key={p.slug} className="row">
+            <header>
+              <h3><Link to={`/blog/${p.slug}`}>{p.title}</Link></h3>
+              <span className="when">{p.date}</span>
+            </header>
+            {p.summary && <p className="summary muted">{p.summary}</p>}
+            {p.sector && <p className="meta"><span>{p.sector}</span></p>}
+          </article>
         ))}
       </div>
     </>

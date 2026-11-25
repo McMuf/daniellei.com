@@ -1,50 +1,36 @@
 import { projects } from '../data/projects'
-import { TAG_ICONS, TAG_ICON_COLORS, SOCIAL_ICONS, SOCIAL_ICON_COLORS } from '../components/icons'
-import MatrixBackground from '../components/MatrixBackground'
+import LoopVideo from '../components/LoopVideo'
 
-const GithubIcon = SOCIAL_ICONS.github
+const ext = { target: '_blank', rel: 'noopener noreferrer' } as const
 
 export default function Projects() {
   return (
     <>
-      <MatrixBackground />
-      <div className="project-grid">
+      <h1 className="page-title">projects</h1>
+      <p className="page-sub">things I’ve shipped, and a few hackathon weekends</p>
+
+      <div className="rows">
         {projects.map(p => (
-          <div key={p.title} className="pcard">
-            <div className="pcard-title-row">
-              <h3 className="pcard-title">
-                {p.url
-                  ? <a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a>
-                  : p.title}
-              </h3>
-              {p.githubUrl && (
-                <a
-                  href={p.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="pcard-github"
-                  aria-label={`${p.title} on GitHub`}
-                >
-                  <GithubIcon color={SOCIAL_ICON_COLORS.github} />
-                </a>
+          <article key={p.title} className={`row${p.video ? ' has-clip' : ''}`}>
+            <div className="row-body">
+              <header>
+                <h3>{p.url ? <a href={p.url} {...ext}>{p.title}</a> : p.title}</h3>
+                <span className="when">{p.when}</span>
+              </header>
+              <p className="summary">{p.summary}</p>
+              {p.bullets && (
+                <ul>
+                  {p.bullets.map(b => <li key={b}>{b}</li>)}
+                </ul>
               )}
-            </div>
-            {p.year && <p className="pcard-meta">{p.year}</p>}
-            <p className="pcard-desc">{p.description}</p>
-            {p.tags && (
-              <p className="pcard-tags">
-                {p.tags.map(t => {
-                  const Icon = TAG_ICONS[t]
-                  return (
-                    <span key={t} className="tag">
-                      {Icon && <Icon className="tag-icon" color={TAG_ICON_COLORS[t]} aria-hidden="true" />}
-                      {t}
-                    </span>
-                  )
-                })}
+              <p className="meta">
+                {p.stack && <span>{p.stack.join(' · ')}</span>}
+                {p.url && <a href={p.url} {...ext}>{p.urlLabel ?? 'link'}</a>}
+                {p.githubUrl && <a href={p.githubUrl} {...ext}>github</a>}
               </p>
-            )}
-          </div>
+            </div>
+            {p.video && <LoopVideo src={p.video} label={`${p.title} demo`} />}
+          </article>
         ))}
       </div>
     </>

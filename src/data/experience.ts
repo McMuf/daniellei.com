@@ -3,47 +3,83 @@ export type Job = {
   role: string
   url?: string
   period: string
-  description?: string
-  current?: boolean
+  summary?: string
+  bullets?: string[]
 }
 
 // most recent first
 export const jobs: Job[] = [
   {
     company: 'Marble Investments',
-    role: 'SWE',
+    role: 'software engineer',
     url: 'https://www.marbleinvestments.ca/',
-    period: '2026',
-    description: 'Building a Python-based internal screening tool that scans public data on company activity to map second-order impacts across supply chains, surfacing signals for the equity research team\'s stock recommendations at a ~$2M USD AUM student-run investment fund.',
-    current: true,
+    period: 'Sep 2026 – present',
+    summary: 'Building research tooling for a $2M USD student-run investment fund.',
+    bullets: [
+      'Built a Python screening tool that ingests public company-activity data to map second-order supply-chain impacts, surfacing signals behind the equity research team’s stock recommendations that generated $15,000+ in alpha.',
+      'Developed a news-intelligence pipeline for the fund’s Nodal Research coverage universe (AI Buildout, AI Applications, Areas of Interest), parsing the latest news into per-ticker views and a universe-wide feed of impacted tickers.',
+      'Designed an LLM-based layer that flags relevant industry and non-ticker news and explains its impact on covered companies.',
+    ],
+  },
+  {
+    company: '@dandoesdev_',
+    role: 'content creator',
+    url: 'https://www.instagram.com/dandoesdev_/',
+    period: 'Aug 2026 – present',
+    summary: 'A content account documenting my CS + Finance journey, with a fitness and humour twist.',
+    bullets: [
+      '1M+ organic views and 2 affiliate sponsorship deals.',
+    ],
   },
   {
     company: 'UW Excel',
-    role: 'Excel Tech & Finance Associate',
-    period: '2026 — present',
-    description: 'Build and maintain the website for UW Excel, an up-and-coming finance and technology club at the University of Waterloo; maintain and audit internal finance sheets, tracking budgets and expenditures for club operations.',
-    current: true,
+    role: 'tech & finance associate',
+    period: '2026 – present',
+    summary: 'Maintain and audit budget and expenditure tracking for a finance and technology club at the University of Waterloo, and support its technical infrastructure.',
   },
   {
     company: 'vsHacks',
-    role: 'Hackathon Chair',
+    role: 'hackathon chair',
     url: 'https://vshacks.com/',
-    period: '2025 — present',
-    description: 'Directed a student-run virtual hackathon across two editions, scaling to 400+ participants, 8+ sponsors, and $4,000+ CAD in prizes. Cold-emailed and recruited 6+ senior practitioners from J.P. Morgan, Apple, and Microsoft as judges and keynote speakers; negotiated cash and in-kind sponsorship across two funding cycles.',
-    current: true,
+    period: '2025 – present',
+    summary: 'Directed a student-run virtual hackathon across two editions with 400+ participants and $7,000+ CAD in prizes, managing budget and sponsors.',
+    bullets: [
+      'Recruited senior practitioners from J.P. Morgan, Apple and Microsoft as judges and keynote speakers.',
+    ],
   },
   {
     company: 'Conceptus Foundation',
-    role: 'Co-Founder & President',
+    role: 'co-founder & president',
     url: 'https://conceptusfoundation.org/',
-    period: 'Sep. 2024 — present',
-    description: 'Founded and led a registered STEM-education nonprofit; managed 20+ volunteers and oversaw budgeting, fundraising, and donor communications. Fundraised $1,700+ CAD for STEM programming in underserved communities; grew Instagram to 1,000+ followers and 90,000+ impressions, and tutored Grades 4–7 students in Python fundamentals.',
-    current: true,
+    period: 'Sep 2024 – present',
+    summary: 'Founded and led a registered STEM-education nonprofit of 20+ volunteers.',
+    bullets: [
+      'Fundraised $1,700+ CAD for programming in underserved communities and grew online reach to 90,000+ people.',
+      'Tutored Grades 4–7 students in Python fundamentals and scripted “Minute Masterclass,” a short-form STEM video series.',
+    ],
   },
   {
     company: 'Soundr',
-    role: 'President & Lead Developer',
+    role: 'president & lead developer',
     period: '2026',
-    description: 'Co-founded a consumer health startup; served as president responsible for business strategy, financial record-keeping, and go-to-market execution. Generated $220 CAD in revenue within two weeks of launch, maintaining the company balance sheet and expense tracking throughout.',
+    summary: 'Co-founded a consumer health startup; ran business strategy, bookkeeping and go-to-market. $220 CAD in revenue within two weeks of launch.',
+  },
+]
+
+export type Program = {
+  org: string
+  role: string
+  url?: string
+  period: string
+  summary: string
+}
+
+export const programs: Program[] = [
+  {
+    org: 'Susquehanna International Group (SIG)',
+    role: 'Virtual Discovery Program',
+    url: 'https://sig.com/',
+    period: '2026',
+    summary: 'Selected from hundreds of applicants to explore quantitative trading, market making, and game-theory decision science.',
   },
 ]
