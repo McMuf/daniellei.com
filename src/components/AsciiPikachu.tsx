@@ -721,7 +721,7 @@ export default function AsciiPikachu() {
         <div className="resume-modal" role="dialog" aria-modal="true" aria-label="Resume" onClick={() => setResumeOpen(false)}>
           <div className="resume-sheet" onClick={e => e.stopPropagation()}>
             <div className="resume-bar">
-              <span>⚡ you caught him. here’s my resume</span>
+              <span>you caught him. here’s my resume</span>
               <a href={RESUME} target="_blank" rel="noopener noreferrer">open ↗</a>
               <a href={RESUME} download="Daniel-Lei-Resume.pdf">download</a>
               <button type="button" onClick={() => setResumeOpen(false)} aria-label="Close resume">×</button>
