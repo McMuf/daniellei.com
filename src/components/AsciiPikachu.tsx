@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 // Ambient ASCII Pikachu for the home page.
@@ -12,6 +12,9 @@ import { createPortal } from 'react-dom'
 // his cheeks, then glitches out and zaps to the next one along a bolt. On the
 // last perch he glitches harder and explodes into glyphs, the debris re-forms
 // in the bottom-right corner, and from then on he bounces there happily.
+//
+// Easter egg: click him while he's visible and he explodes, then the resume
+// opens in an overlay; he re-forms in the corner and keeps bouncing.
 
 type V = { x: number; y: number }
 type RGB = [number, number, number]
@@ -56,6 +59,10 @@ const SEGS: Seg[] = (() => {
   )
   return s
 })()
+const EXPLODE_I = SEGS.findIndex(s => s.name === 'explode')
+const EXPLODE_START = SEGS.slice(0, EXPLODE_I).reduce((a, s) => a + s.dur, 0)
+const RESUME = '/resume.pdf'
+
 function segAt(t: number) {
   let acc = 0
   for (let i = 0; i < SEGS.length; i++) {
@@ -115,6 +122,16 @@ function bounce(t: number) {
 
 export default function AsciiPikachu() {
   const ref = useRef<HTMLCanvasElement>(null)
+  const [resumeOpen, setResumeOpen] = useState(false)
+  const openRef = useRef(false)
+  openRef.current = resumeOpen
+
+  useEffect(() => {
+    if (!resumeOpen) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setResumeOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [resumeOpen])
 
   useEffect(() => {
     const canvas = ref.current
@@ -510,6 +527,10 @@ export default function AsciiPikachu() {
 
     // ---- main step ----
     let lastSeg = -1
+    let tOff = 0 // timeline offset, so a click can jump straight to the explosion
+    let curNow = 0
+    let clickable = false
+    let resumeAt = -1
     let lastCells: Cell[] = []
     let explodeAt = -1
     let idleStart = -1
@@ -550,7 +571,10 @@ export default function AsciiPikachu() {
     }
 
     function step(now: number, dt: number, draw: boolean) {
-      const { i, seg, k } = segAt(now)
+      curNow = now
+      const { i, seg, k } = segAt(now - tOff)
+      clickable = seg.name === 'hold' || seg.name === 'idle' || seg.name === 'out' || seg.name === 'glitch' || (seg.name === 'in' && k > 0.3)
+      if (resumeAt >= 0 && now > resumeAt) { resumeAt = -1; setResumeOpen(true) }
       if (i !== lastSeg) {
         for (let j = lastSeg + 1; j <= i; j++) enter(SEGS[j], now)
         lastSeg = i
@@ -614,6 +638,33 @@ export default function AsciiPikachu() {
       if (cells.length) drawCells(cells, idleStart >= 0 && now - idleStart < 0.12 ? WHITE_Y : undefined)
     }
 
+    // ---- easter egg: click him ----
+    function overHim(x: number, y: number) {
+      if (!clickable || !lastCells.length) return false
+      const cx = Math.floor(x / cw), cy = Math.floor(y / chH)
+      for (const c of lastCells) if (Math.abs(c.cx - cx) <= 2 && Math.abs(c.cy - cy) <= 1) return true
+      return false
+    }
+    const interactive = (t: EventTarget | null) => t instanceof Element && !!t.closest('a, button, input, textarea, [role="dialog"]')
+    let hovering = false
+    const onMove = (e: MouseEvent) => {
+      const over = !openRef.current && !interactive(e.target) && overHim(e.clientX, e.clientY)
+      if (over !== hovering) { hovering = over; document.body.style.cursor = over ? 'pointer' : '' }
+    }
+    const onClick = (e: MouseEvent) => {
+      if (openRef.current || interactive(e.target) || !overHim(e.clientX, e.clientY)) return
+      hovering = false
+      document.body.style.cursor = ''
+      if (reduced || debugT !== null) { setResumeOpen(true); return }
+      // jump the timeline to the explosion; it re-forms in the corner afterwards
+      tOff = curNow - EXPLODE_START
+      lastSeg = EXPLODE_I - 1
+      clickable = false
+      resumeAt = curNow + 0.65
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('click', onClick)
+
     // ---- run ----
     let raf = 0
     let alive = true
@@ -653,6 +704,9 @@ export default function AsciiPikachu() {
     return () => {
       alive = false
       cancelAnimationFrame(raf)
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('click', onClick)
+      document.body.style.cursor = ''
       window.removeEventListener('resize', onResize)
       document.removeEventListener('visibilitychange', onVis)
     }
@@ -660,5 +714,23 @@ export default function AsciiPikachu() {
 
   // Portaled to <body> so page-transition transforms can't break
   // position: fixed, and so it sits under the page content.
-  return createPortal(<canvas ref={ref} className="runner-canvas" aria-hidden="true" />, document.body)
+  return (
+    <>
+      {createPortal(<canvas ref={ref} className="runner-canvas" aria-hidden="true" />, document.body)}
+      {resumeOpen && createPortal(
+        <div className="resume-modal" role="dialog" aria-modal="true" aria-label="Resume" onClick={() => setResumeOpen(false)}>
+          <div className="resume-sheet" onClick={e => e.stopPropagation()}>
+            <div className="resume-bar">
+              <span>⚡ you caught him. here’s my resume</span>
+              <a href={RESUME} target="_blank" rel="noopener noreferrer">open ↗</a>
+              <a href={RESUME} download="Daniel-Lei-Resume.pdf">download</a>
+              <button type="button" onClick={() => setResumeOpen(false)} aria-label="Close resume">×</button>
+            </div>
+            <iframe src={`${RESUME}#navpanes=0&view=FitH`} title="Daniel Lei resume" />
+          </div>
+        </div>,
+        document.body,
+      )}
+    </>
+  )
 }

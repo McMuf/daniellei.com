@@ -32,7 +32,7 @@ export default function Home() {
             <span className="tip" tabIndex={0} data-tip="University of Waterloo entrance award">President’s Scholarship of Distinction</span>
           </li>
           <li>
-            posting the journey @ <a className="name" href={profile.instagram.url} {...ext}>{profile.instagram.handle}</a> · 1M+ organic views
+            posting the journey on <a className="name" href={profile.instagram.url} {...ext}>{profile.instagram.handle}</a> · 1M+ organic views
           </li>
         </ul>
       </section>

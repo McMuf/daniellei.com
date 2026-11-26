@@ -54,12 +54,6 @@ main.site {
   margin: auto 0;
 }
 
-.view { animation: view-in 420ms var(--ease) both; }
-@keyframes view-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
-}
-
 h1 {
   font-size: 2.1rem;
   font-weight: 500;
@@ -178,9 +172,7 @@ a.name:hover { border-color: var(--accent); color: var(--accent); }
 .row {
   text-align: left;
   padding: 22px 0;
-  border-top: 1px solid var(--line);
 }
-.row:last-child { border-bottom: 1px solid var(--line); }
 
 .row header {
   display: flex;
@@ -399,6 +391,47 @@ a.name:hover { border-color: var(--accent); color: var(--accent); }
 
 .post-missing { display: flex; flex-direction: column; gap: 14px; color: var(--muted); }
 
-@media (prefers-reduced-motion: reduce) {
-  .view { animation: none; }
+
+/* resume overlay (pikachu easter egg) */
+.resume-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 3vw;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
 }
+.resume-sheet {
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 100%);
+  height: 100%;
+  background: #0a0f0d;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.resume-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.resume-bar span { flex: 1; text-align: left; }
+.resume-bar a { color: var(--accent); text-decoration: none; }
+.resume-bar a:hover { text-decoration: underline; }
+.resume-bar button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.resume-bar button:hover { color: var(--text); }
+.resume-sheet iframe { flex: 1; width: 100%; border: 0; background: #fff; }
