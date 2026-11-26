@@ -14,7 +14,7 @@ export const jobs: Job[] = [
     role: 'software engineer',
     url: 'https://www.marbleinvestments.ca/',
     period: 'Sep 2026 – present',
-    summary: 'Building research tooling for a $2M USD student-run investment fund.',
+    summary: 'Building research tooling for a $2M USD investment fund.',
     bullets: [
       'Built a Python screening tool that ingests public company-activity data to map second-order supply-chain impacts, surfacing signals behind the equity research team’s stock recommendations that generated $15,000+ in alpha.',
       'Developed a news-intelligence pipeline for the fund’s Nodal Research coverage universe (AI Buildout, AI Applications, Areas of Interest), parsing the latest news into per-ticker views and a universe-wide feed of impacted tickers.',

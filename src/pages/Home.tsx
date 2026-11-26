@@ -20,7 +20,7 @@ export default function Home() {
         <h2>currently</h2>
         <ul>
           <li>
-            software engineer @ <a className="name" href="https://www.marbleinvestments.ca/" {...ext}>Marble Investments</a> · $2M student-run fund
+            software engineer @ <a className="name" href="https://www.marbleinvestments.ca/" {...ext}>Marble Investments</a> · $2M investment fund
           </li>
           <li>
             CS + Finance (CFM) @{' '}
