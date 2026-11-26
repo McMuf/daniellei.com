@@ -1,31 +1,33 @@
 import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-// Ambient ASCII character for the home page.
+// Ambient ASCII critter for the home page.
 //
-// An original, front-facing, angular character (shard crest, mint visor,
-// sash, fluttering scarf). Each frame she is posed as a flat 2D skeleton,
-// painted as low-poly shapes onto a tiny offscreen canvas with one pixel per
-// text cell, and read back as monospace glyphs picked by brightness.
+// An original chubby electric critter: round yellow body, glowing spark-tipped
+// ears, charge-up cheek pads, and a curly cord tail ending in a spark orb.
+// Each frame it is posed as a flat 2D rig, painted as low-poly shapes onto a
+// tiny offscreen canvas with one pixel per text cell, and read back as
+// monospace glyphs picked by brightness.
 //
-// Sequence (runs once): glitch onto a few headings / links on the page,
-// perched on top of, hanging under, or clinging to the side of the text, then
-// glitch out and zap to the next one along a pink lightning bolt. On the last
-// perch she glitches harder and explodes into glyphs, the debris re-forms in
-// the bottom-right corner, and she stays there idling. Pink lightning streaks
-// across the screen throughout.
+// Sequence (runs once): a lightning strike drops it onto a heading, it sits /
+// waves / looks around while sparking from its cheeks, then crouches and dashes
+// along a bolt to the next bit of text. On the last perch it charges up,
+// overloads in a burst of thunder, the sparks re-form in the bottom-right
+// corner, and it stays there idling (ear flicks, tail wags, blinks, waves, and
+// the occasional bolt fired across the page).
 
 type V = { x: number; y: number }
 type RGB = [number, number, number]
 
 type Pose = {
-  tilt: number // torso lean sideways (+ = right)
-  head: number // head tilt relative to torso
-  thL: number; shL: number; tlL: number // left thigh/shin angle (+ = outward), thigh length (foreshortening)
-  thR: number; shR: number; tlR: number
-  arL: number; elL: number // left upper arm (+ = outward from down), elbow (+ = outward)
-  arR: number; elR: number
+  lean: number // whole-body lean (+ = right)
+  head: number // head tilt relative to body
+  earL: number; earR: number // ear spread (+ = outward / droop)
+  armL: number; armR: number // stubby arm angle from "down" (+ = outward / up)
+  sq: number // squash (<1) / stretch (>1), anchored at the feet
+  wave: number // amplitude of a right-arm wave
 }
+type Face = { blink: number; mouth: number; cheek: number; wag: number; orb: number }
 
 type Cell = { cx: number; cy: number; ch: string; r: number; g: number; b: number; a: number }
 type Particle = { x: number; y: number; vx: number; vy: number; ch: string; c: RGB; life: number; max: number }
@@ -35,50 +37,39 @@ type Side = 'top' | 'bottom' | 'left' | 'right' | 'corner'
 type Perch = { el: Element | null; side: Side; t: number; tilt: number; pose: Pose; mirror: boolean; seed: number }
 
 const RAMP = ' .:-=+*#%@'
-const GLITCH = '!<>/\\[]{}=+*^?#01'
+const STATIC = '!<>/\\[]{}=+*^~?#01'
 const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace'
 
 const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]
-const PINK_HI = hex('#ff7aa8')
-const PINK = hex('#ff3d7f')
-const PINK_MID = hex('#e8306f')
-const PINK_LO = hex('#a51d52')
-const PINK_SH = hex('#7d1a45')
-const MINT_HI = hex('#8dffdc')
-const MINT = hex('#35e6ae')
-const MINT_LO = hex('#1d8f6b')
-const WHITE_PINK: RGB = [255, 226, 238]
+const YEL_HI = hex('#fff27a')
+const YEL = hex('#ffd93b')
+const YEL_MID = hex('#f2c21b')
+const YEL_SH = hex('#c48a0c')
+const ORANGE = hex('#ff7b3a')
+const WHITE_Y: RGB = [255, 250, 214]
+const WHITE: RGB = [255, 255, 255]
 
-// skeleton, units where a standing figure is about 8 tall
-const THIGH = 1.6
-const SHIN = 1.5
-const TORSO = 2.55
-const NECK = 0.28
-const HEADR = 0.66
-const UARM = 1.35
-const FARM = 1.25
-const SCARF_N = 7
-const SCARF_SEG = 0.45
-
-// ---- poses (front view) ----
-const CROUCH: Pose = { tilt: 0.04, head: -0.14, thL: 1.2, shL: -0.25, tlL: 0.62, thR: 1.15, shR: -0.2, tlR: 0.6, arL: 0.35, elL: -0.55, arR: 0.75, elR: -1.5 }
-const KNEEL: Pose = { tilt: -0.06, head: 0.12, thL: 0.55, shL: -0.05, tlL: 0.9, thR: 1.4, shR: -0.65, tlR: 0.55, arL: 0.2, elL: 0.15, arR: 0.95, elR: -1.25 }
-const PERCH_LOW: Pose = { tilt: 0.0, head: -0.05, thL: 1.35, shL: -0.4, tlL: 0.5, thR: 1.35, shR: -0.4, tlR: 0.5, arL: 0.15, elL: -0.1, arR: 0.15, elR: -0.1 }
-const POSES = [CROUCH, KNEEL, PERCH_LOW]
-
+// ---- poses (front view; the critter is about 5 units tall to the ear tips) ----
+const SIT: Pose = { lean: 0, head: 0, earL: 0, earR: 0, armL: 0.3, armR: 0.3, sq: 1, wave: 0 }
+const WAVE: Pose = { lean: -0.05, head: 0.14, earL: -0.05, earR: 0.1, armL: 0.25, armR: 2.5, sq: 1, wave: 0.35 }
+const CURIOUS: Pose = { lean: 0.1, head: -0.32, earL: -0.12, earR: 0.32, armL: 0.55, armR: 0.15, sq: 0.97, wave: 0 }
+const CHEER: Pose = { lean: 0, head: 0.05, earL: -0.15, earR: -0.15, armL: 2.2, armR: 2.2, sq: 1.04, wave: 0.15 }
+const CHARGE: Pose = { lean: 0, head: 0, earL: -0.24, earR: -0.24, armL: 1.3, armR: 1.3, sq: 0.9, wave: 0 }
+const CROUCH: Pose = { lean: 0, head: -0.1, earL: 0.3, earR: 0.3, armL: 0.65, armR: 0.65, sq: 0.72, wave: 0 }
+const POSES = [SIT, WAVE, CURIOUS, CHEER]
 
 // ---- timeline ----
-type SegName = 'wait' | 'in' | 'hold' | 'out' | 'zap' | 'glitch' | 'explode' | 'reform' | 'idle'
+type SegName = 'wait' | 'in' | 'hold' | 'out' | 'zap' | 'charge' | 'explode' | 'reform' | 'idle'
 type Seg = { name: SegName; dur: number; hop: number }
 const HOPS = 4
 const SEGS: Seg[] = (() => {
   const s: Seg[] = [{ name: 'wait', dur: 0.6, hop: -1 }]
   for (let i = 0; i < HOPS; i++) {
-    s.push({ name: 'in', dur: 0.42, hop: i }, { name: 'hold', dur: 1.2, hop: i })
-    if (i < HOPS - 1) s.push({ name: 'out', dur: 0.26, hop: i }, { name: 'zap', dur: 0.14, hop: i })
+    s.push({ name: 'in', dur: 0.45, hop: i }, { name: 'hold', dur: 1.5, hop: i })
+    if (i < HOPS - 1) s.push({ name: 'out', dur: 0.3, hop: i }, { name: 'zap', dur: 0.12, hop: i })
   }
   s.push(
-    { name: 'glitch', dur: 0.55, hop: HOPS - 1 },
+    { name: 'charge', dur: 1.3, hop: HOPS - 1 },
     { name: 'explode', dur: 1.0, hop: -1 },
     { name: 'reform', dur: 1.5, hop: -1 },
     { name: 'idle', dur: Infinity, hop: -1 },
@@ -97,6 +88,7 @@ function segAt(t: number) {
 
 // ---- helpers ----
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v)
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 const easeOut = (t: number) => { t = clamp(t, 0, 1); return 1 - (1 - t) * (1 - t) }
 const easeIn = (t: number) => { t = clamp(t, 0, 1); return t * t }
 const easeInOut = (t: number) => { t = clamp(t, 0, 1); return t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t) }
@@ -120,57 +112,83 @@ function mulberry32(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
 }
-
-// ---- forward kinematics (rig space: y up, pelvis at origin) ----
-function fk(p: Pose) {
-  const P: V = { x: 0, y: 0 }
-  const u = upv(p.tilt)
-  const r = { x: u.y, y: -u.x }
-  const neck = add(P, u, TORSO)
-  const shC = add(P, u, TORSO - 0.32)
-  const shL = add(shC, r, -0.62)
-  const shR = add(shC, r, 0.62)
-  const hipL = add(P, r, -0.42)
-  const hipR = add(P, r, 0.42)
-  const leg = (hip: V, side: number, th: number, sh: number, tl: number) => {
-    const knee = add(hip, dirv(side * th), THIGH * tl)
-    const ankle = add(knee, dirv(side * sh), SHIN)
-    const toe = add(ankle, { x: side * 0.3, y: -0.3 }, 1)
-    return { hip, knee, ankle, toe }
-  }
-  const arm = (sh: V, side: number, ar: number, el: number) => {
-    const a = side * ar + p.tilt
-    const elbow = add(sh, dirv(a), UARM)
-    const fa = a + side * el
-    const hand = add(elbow, dirv(fa), FARM)
-    return { sh, elbow, hand, fa, side }
-  }
-  const ha = p.tilt + p.head
-  const head = add(neck, upv(ha), NECK + HEADR)
-  const legL = leg(hipL, -1, p.thL, p.shL, p.tlL)
-  const legR = leg(hipR, 1, p.thR, p.shR, p.tlR)
-  const foot = Math.min(legL.ankle.y, legL.toe.y, legR.ankle.y, legR.toe.y)
-  return { P, u, r, neck, head, ha, legL, legR, armL: arm(shL, -1, p.arL, p.elL), armR: arm(shR, 1, p.arR, p.elR), foot }
-}
-type Rig = ReturnType<typeof fk>
-
-function idlePose(base: Pose, t: number, seed: number): Pose {
-  const o = { ...base }
-  const br = Math.sin(t * 2.1 + seed)
-  o.tilt += 0.05 * Math.sin(t * 0.6 + seed)
-  o.head += 0.16 * Math.sin(t * 0.45 + seed * 2) + 0.06 * Math.sin(t * 1.7 + seed)
-  o.tlL += 0.03 * br
-  o.tlR += 0.03 * br
-  o.arL += 0.05 * Math.sin(t * 1.3 + seed)
-  o.arR += 0.05 * Math.sin(t * 1.1 + seed + 1)
+function lerpPose(a: Pose, b: Pose, t: number): Pose {
+  const o = { ...a }
+  for (const k of Object.keys(a) as (keyof Pose)[]) o[k] = lerp(a[k], b[k], t)
   return o
 }
-
-function mirrorPose(p: Pose): Pose {
-  return { tilt: -p.tilt, head: -p.head, thL: p.thR, shL: p.shR, tlL: p.tlR, thR: p.thL, shR: p.shL, tlR: p.tlL, arL: p.arR, elL: p.elR, arR: p.arL, elR: p.elL }
+function ell(c: V, ax: V, ay: V, rx: number, ry: number, n = 12): V[] {
+  const pts: V[] = []
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2
+    pts.push(add(add(c, ax, Math.cos(a) * rx), ay, Math.sin(a) * ry))
+  }
+  return pts
 }
 
-export default function GlitchPerch() {
+// ---- rig (rig space: y up, feet near the origin) ----
+function build(p: Pose, wag: number) {
+  const u = upv(p.lean)
+  const r = { x: u.y, y: -u.x }
+  const O = { x: 0, y: 0 }
+  const at = (x: number, y: number) => add(add(O, r, x), u, y)
+  const ha = p.lean + p.head
+  const hu = upv(ha)
+  const hr = { x: hu.y, y: -hu.x }
+  const headC = add(at(0, 1.9), hu, 0.82)
+  const hat = (x: number, y: number) => add(add(headC, hr, x), hu, y)
+  const ear = (side: number, a: number) => {
+    const base = hat(side * 0.52, 0.6)
+    const eu = upv(ha + side * (0.34 + a))
+    const en = { x: eu.y, y: -eu.x }
+    return { base, eu, en, tip: add(base, eu, 1.62) }
+  }
+  const arm = (side: number, a: number) => {
+    const sh = at(side * 0.6, 1.5)
+    return { sh, hand: add(sh, dirv(side * a + p.lean), 0.58) }
+  }
+  // curly cord tail off the back-right, wagging around its root
+  const tail: V[] = []
+  const root = at(0.5, 0.5)
+  const wa = p.lean + wag
+  for (let i = 0; i <= 9; i++) {
+    const s = i / 9
+    const lx = 1.35 * s + 0.14 * Math.sin(s * 6 + wag * 3)
+    const ly = 1.85 * s
+    tail.push({ x: root.x + lx * Math.cos(wa) + ly * Math.sin(wa), y: root.y - lx * Math.sin(wa) + ly * Math.cos(wa) })
+  }
+  const footL = at(-0.42, 0.14)
+  const footR = at(0.42, 0.14)
+  const foot = Math.min(footL.y, footR.y) - 0.15
+  return { u, r, at, ha, hu, hr, headC, hat, earL: ear(-1, p.earL), earR: ear(1, p.earR), armL: arm(-1, p.armL), armR: arm(1, p.armR), tail, footL, footR, foot }
+}
+type Rig = ReturnType<typeof build>
+
+function flick(t: number, seed: number) {
+  const w = 1.3
+  const n = Math.floor(t * w + seed)
+  if (hash(n, 77, Math.floor(seed * 100)) < 0.72) return 0
+  const ph = t * w + seed - n
+  return ph < 0.22 ? 0.45 * Math.sin((ph / 0.22) * Math.PI) : 0
+}
+function animate(base: Pose, t: number, seed: number): Pose {
+  const o = { ...base }
+  o.sq += 0.03 * Math.sin(t * 2.6 + seed)
+  o.head += 0.12 * Math.sin(t * 0.55 + seed) + 0.04 * Math.sin(t * 1.9 + seed)
+  o.lean += 0.04 * Math.sin(t * 0.7 + seed)
+  o.earL += 0.06 * Math.sin(t * 1.4 + seed) + flick(t, seed)
+  o.earR += 0.06 * Math.sin(t * 1.2 + seed + 2) + flick(t, seed + 5.3)
+  o.armL += 0.05 * Math.sin(t * 1.5 + seed)
+  o.armR += o.wave * Math.sin(t * 9)
+  return o
+}
+function blinkAt(t: number, seed: number) {
+  const per = 3.4
+  const ph = (((t + seed * 1.7) % per) + per) % per / per
+  return ph > 0.96 ? 1 : 0
+}
+
+export default function SparkCritter() {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -188,7 +206,7 @@ export default function GlitchPerch() {
 
     let W = 0, H = 0, cw = 3, chH = 5, fs = 4.6, cols = 0, rows = 0
     let bfs = 9, bcw = 5.4, bch = 9.7 // lightning glyph grid
-    let Up = 12, Uc = 25 // perched / corner scale (px per rig unit)
+    let Up = 26, Uc = 46 // perched / corner scale (px per rig unit)
 
     function resize() {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
@@ -212,19 +230,19 @@ export default function GlitchPerch() {
       rows = Math.ceil(H / chH)
       off.width = cols
       off.height = rows
-      Up = (mobile ? 96 : clamp(H * 0.2, 130, 175)) / 8
-      Uc = (mobile ? clamp(H * 0.2, 110, 150) : clamp(H * 0.32, 160, 270)) / 8
+      Up = (mobile ? 85 : clamp(H * 0.17, 115, 150)) / 5
+      Uc = (mobile ? clamp(H * 0.18, 100, 135) : clamp(H * 0.26, 150, 235)) / 5
     }
     resize()
 
     // ---- perch selection ----
     const used = new Set<Element>()
     const perches: Perch[] = []
-    const corner: Perch = { el: null, side: 'corner', t: 0, tilt: 0, pose: CROUCH, mirror: true, seed: 3.1 }
+    const corner: Perch = { el: null, side: 'corner', t: 0, tilt: 0, pose: SIT, mirror: true, seed: 3.1 }
 
     function choosePerch(): Perch {
       const sel = 'main.site h1, main.site h2, main.site a.name, main.site .tip, main.site .intro, main.site .links a, main.site .avatar'
-      const charH = 7.5 * Up
+      const charH = 5.2 * Up
       const vis = Array.from(document.querySelectorAll(sel)).filter(e => {
         const r = e.getBoundingClientRect()
         return r.width > 20 && r.top > 80 && r.bottom < H - 30 && !used.has(e)
@@ -232,11 +250,9 @@ export default function GlitchPerch() {
       const pose = POSES[Math.floor(rng() * POSES.length)]
       const mirror = rng() < 0.5
       const seed = rng() * 10
-      const tilt = (rng() - 0.5) * 0.3
-      if (!vis.length) {
-        return { el: null, side: 'top', t: rng(), tilt, pose, mirror, seed }
-      }
-      // prefer elements far from the previous perch so hops travel
+      const tilt = (rng() - 0.5) * 0.25
+      if (!vis.length) return { el: null, side: 'top', t: rng(), tilt, pose, mirror, seed }
+      // prefer elements far from the previous perch so dashes travel
       const prev = perches.length ? anchorOf(perches[perches.length - 1]).A : { x: W / 2, y: H / 2 }
       vis.sort((a, b) => {
         const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect()
@@ -249,16 +265,16 @@ export default function GlitchPerch() {
       const r = el.getBoundingClientRect()
       const roll = rng()
       let side: Side = 'top'
-      const roomL = r.left > 4 * Up
-      const roomR = W - r.right > 4 * Up
-      if (roll < 0.3 && (roomL || roomR)) side = roomR && (!roomL || rng() < 0.5) ? 'right' : 'left'
-      else if (roll < 0.55 || r.top - charH < 70) side = 'bottom'
+      const roomL = r.left > 3.5 * Up
+      const roomR = W - r.right > 3.5 * Up
+      if (roll < 0.25 && (roomL || roomR)) side = roomR && (!roomL || rng() < 0.5) ? 'right' : 'left'
+      else if (r.top - charH < 70) side = 'bottom'
       return { el, side, t: 0.15 + 0.7 * rng(), tilt, pose, mirror, seed }
     }
 
-    // where the feet go, and which way is "up" for her body
+    // where the feet go, and which way is "up" for its body
     function anchorOf(p: Perch): { A: V; up: V } {
-      if (p.side === 'corner') return { A: { x: W - 3.3 * Uc - 22, y: H - 4 }, up: { x: 0, y: -1 } }
+      if (p.side === 'corner') return { A: { x: W - 2.4 * Uc - 24, y: H - 4 }, up: { x: 0, y: -1 } }
       if (!p.el) return { A: { x: W * (0.15 + 0.7 * p.t), y: H * 0.6 }, up: { x: 0, y: -1 } }
       const r = p.el.getBoundingClientRect()
       const rot = (u: V): V => ({ x: u.x * Math.cos(p.tilt) - u.y * Math.sin(p.tilt), y: u.x * Math.sin(p.tilt) + u.y * Math.cos(p.tilt) })
@@ -289,8 +305,18 @@ export default function GlitchPerch() {
     // ---- low-poly painting ----
     const LIGHT = { x: -0.54, y: -0.84 }
     const rgbStr = (c: RGB) => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`
+    let bx0 = 0, by0 = 0, bx1 = 0, by1 = 0
+    function track(pts: V[]) {
+      for (const p of pts) {
+        if (p.x < bx0) bx0 = p.x
+        if (p.y < by0) by0 = p.y
+        if (p.x > bx1) bx1 = p.x
+        if (p.y > by1) by1 = p.y
+      }
+    }
 
     function facet(pts: V[], base: RGB, contrast = 0.4) {
+      track(pts)
       let cx = 0, cy = 0
       for (const p of pts) { cx += p.x; cy += p.y }
       cx /= pts.length
@@ -302,7 +328,7 @@ export default function GlitchPerch() {
         let ny = -(b.x - a.x)
         if (nx * ((a.x + b.x) / 2 - cx) + ny * ((a.y + b.y) / 2 - cy) < 0) { nx = -nx; ny = -ny }
         const d = (nx * LIGHT.x + ny * LIGHT.y) / (Math.hypot(nx, ny) || 1)
-        const f = 1.05 - contrast * 0.5 + contrast * 0.5 * d
+        const f = 1.0 - contrast * 0.55 + contrast * 0.55 * d
         octx!.fillStyle = rgbStr([Math.min(255, base[0] * f), Math.min(255, base[1] * f), Math.min(255, base[2] * f)])
         octx!.beginPath()
         octx!.moveTo(cx, cy)
@@ -327,137 +353,79 @@ export default function GlitchPerch() {
       facet([add(b, n, wb), add(b, { x: dx / l, y: dy / l }, wb * 0.9), add(b, n, -wb)].map(toS), c)
     }
 
-    function drawLeg(l: Rig['legL'], side: number) {
-      limb(l.hip, l.knee, 0.34, 0.25, PINK_LO)
-      limb(l.knee, l.ankle, 0.25, 0.16, PINK_MID)
-      // mint knee guard
-      facet([add(l.knee, { x: 0, y: 1 }, 0.26), add(l.knee, { x: 1, y: 0 }, 0.22), add(l.knee, { x: 0, y: -1 }, 0.3), add(l.knee, { x: -1, y: 0 }, 0.22)].map(toS), MINT)
-      // boot
-      facet([add(l.ankle, { x: -side, y: 0 }, 0.17), add(l.ankle, { x: side, y: 0.1 }, 0.2), l.toe, add(l.ankle, { x: -side * 0.1, y: -0.32 }, 1)].map(toS), PINK_SH)
+    function drawTail(rg: Rig, orb: number) {
+      const T = rg.tail
+      const n = T.length - 1
+      for (let i = 0; i < n; i++) limb(T[i], T[i + 1], 0.27 - 0.12 * (i / n), 0.27 - 0.12 * ((i + 1) / n), i % 2 ? YEL_MID : YEL_SH)
+      facet(ell(T[n], { x: 1, y: 0 }, { x: 0, y: 1 }, 0.27, 0.27, 8).map(toS), mixc(YEL_HI, WHITE_Y, orb), 0.3)
+    }
+
+    function drawBody(rg: Rig) {
+      const B: [number, number][] = [[0, 2.02], [0.48, 1.92], [0.74, 1.58], [0.84, 1.05], [0.8, 0.55], [0.58, 0.2], [0.2, 0.1]]
+      const pts = [...B.map(([x, y]) => rg.at(x, y)), ...B.slice(1).reverse().map(([x, y]) => rg.at(-x, y))]
+      facet(ell(rg.footL, rg.r, rg.u, 0.3, 0.15, 8).map(toS), YEL_SH, 0.3)
+      facet(ell(rg.footR, rg.r, rg.u, 0.3, 0.15, 8).map(toS), YEL_SH, 0.3)
+      facet(pts.map(toS), YEL_MID, 0.6)
+      facet(ell(rg.at(0, 0.95), rg.r, rg.u, 0.48, 0.58, 10).map(toS), YEL_HI, 0.2)
     }
 
     function drawArm(a: Rig['armL']) {
-      const s = a.side
-      // angular shoulder plate
-      facet([add(a.sh, { x: s * 0.3, y: 0.22 }, 1), add(a.sh, { x: -s * 0.05, y: 0.28 }, 1), add(a.sh, { x: -s * 0.12, y: -0.1 }, 1), add(a.sh, { x: s * 0.42, y: -0.28 }, 1)].map(toS), PINK_HI)
-      limb(a.sh, a.elbow, 0.19, 0.14, PINK_HI)
-      limb(a.elbow, a.hand, 0.14, 0.1, PINK_SH)
-      const d = dirv(a.fa)
-      const n = { x: -d.y, y: d.x }
-      facet([add(a.hand, n, 0.13), add(add(a.hand, d, 0.34), n, 0.03), add(a.hand, n, -0.13)].map(toS), PINK_LO)
+      limb(a.sh, a.hand, 0.17, 0.13, YEL)
     }
 
-    function drawTorso(r: Rig) {
-      const at = (fw: number, h: number) => add(add(r.P, r.r, fw), r.u, h)
-      facet([at(-0.55, -0.28), at(0.55, -0.28), at(0.5, 0.45), at(-0.5, 0.45)].map(toS), PINK_LO)
-      facet([at(-0.5, 0.3), at(0.5, 0.3), at(0.36, 1.0), at(0.62, 1.9), at(0.66, 2.3), at(0.2, 2.62), at(-0.2, 2.62), at(-0.66, 2.3), at(-0.62, 1.9), at(-0.36, 1.0)].map(toS), PINK_MID)
-      poly([at(-0.66, 2.18), at(-0.42, 2.34), at(0.52, 0.66), at(0.3, 0.52)].map(toS), MINT) // sash
-      poly([at(-0.5, 0.42), at(0.5, 0.42), at(0.47, 0.6), at(-0.47, 0.6)].map(toS), MINT_LO) // belt
-      facet([at(-0.4, 2.4), at(0.4, 2.4), at(0.3, 2.9), at(-0.3, 2.9)].map(toS), PINK_LO) // high collar
+    function drawEar(e: Rig['earL'], tip: RGB) {
+      const P = (l: number, w: number) => toS(add(add(e.base, e.eu, l), e.en, w))
+      facet([P(0, -0.26), P(0.8, -0.3), P(1.62, 0), P(0.8, 0.3), P(0, 0.26)], YEL, 0.5)
+      facet([P(1.0, -0.23), P(1.62, 0), P(1.0, 0.23)], tip, 0.3)
     }
 
-    function drawHead(r: Rig, scan: number, twitch: number) {
-      const hu = upv(r.ha)
-      const hr = { x: hu.y, y: -hu.x }
-      const at = (x: number, y: number) => add(add(r.head, hr, x * HEADR), hu, y * HEADR)
-      // shard crest
-      facet([at(-0.32, 0.82), at(-0.8 - twitch, 2.05), at(-0.04, 1.0)].map(toS), PINK)
-      facet([at(-0.1, 1.0), at(0.12 + twitch * 0.5, 2.6), at(0.34, 0.95)].map(toS), PINK_HI)
-      facet([at(0.3, 0.82), at(0.98 + twitch, 1.85), at(0.58, 0.62)].map(toS), PINK)
-      // ear fins
-      facet([at(-0.78, 0.25), at(-1.28, 0.6), at(-0.82, -0.18)].map(toS), MINT)
-      facet([at(0.78, 0.25), at(1.28, 0.6), at(0.82, -0.18)].map(toS), MINT)
-      // face
-      facet([at(0, 1.05), at(-0.72, 0.62), at(-0.84, -0.05), at(-0.45, -0.72), at(0, -1.02), at(0.45, -0.72), at(0.84, -0.05), at(0.72, 0.62)].map(toS), PINK_HI, 0.45)
-      // visor with a sweeping scan highlight
-      poly([at(-0.88, 0.4), at(0.88, 0.4), at(0.8, 0.02), at(-0.8, 0.02)].map(toS), MINT_HI)
-      poly([at(-0.62, 0.26), at(0.62, 0.26), at(0.6, 0.15), at(-0.6, 0.15)].map(toS), MINT_LO)
-      const x0 = -0.75 + 1.5 * scan
-      poly([at(x0 - 0.1, 0.38), at(x0 + 0.1, 0.38), at(x0 + 0.08, 0.04), at(x0 - 0.12, 0.04)].map(toS), [255, 255, 255])
-    }
-
-    // ---- scarf (verlet chain) ----
-    const scarf: { x: number; y: number; px: number; py: number }[] = []
-    let scarfReset = true
-    function scarfAnchor(r: Rig): { a: V; rest: V } {
-      const a = toS(add(add(r.P, r.r, 0.32), r.u, 2.6))
-      const t = toS(add(add(r.P, r.r, 1.4), r.u, 2.2))
-      const l = Math.hypot(t.x - a.x, t.y - a.y) || 1
-      return { a, rest: { x: (t.x - a.x) / l, y: (t.y - a.y) / l } }
-    }
-    function stepScarf(r: Rig, dt: number, now: number) {
-      const { a, rest } = scarfAnchor(r)
-      const seg = SCARF_SEG * U
-      if (scarfReset || scarf.length !== SCARF_N) {
-        scarf.length = 0
-        for (let i = 0; i < SCARF_N; i++) {
-          const x = a.x + rest.x * seg * i, y = a.y + rest.y * seg * i
-          scarf.push({ x, y, px: x, py: y })
-        }
-        scarfReset = false
-        return
-      }
-      scarf[0].x = scarf[0].px = a.x
-      scarf[0].y = scarf[0].py = a.y
-      const g = 18 * U
-      for (let i = 1; i < SCARF_N; i++) {
-        const h = scarf[i]
-        const vx = (h.x - h.px) * 0.9, vy = (h.y - h.py) * 0.9
-        h.px = h.x
-        h.py = h.y
-        const k = 60 * (1 - i / SCARF_N) ** 1.4
-        const wind = (Math.sin(now * 3.1 + i * 0.9) + 0.6 * Math.sin(now * 5.3 + i * 1.7)) * 26 * U
-        h.x += vx + ((a.x + rest.x * seg * i - h.x) * k + wind) * dt * dt
-        h.y += vy + ((a.y + rest.y * seg * i - h.y) * k + g) * dt * dt
-      }
-      for (let it = 0; it < 4; it++) {
-        for (let i = 1; i < SCARF_N; i++) {
-          const p = scarf[i - 1], h = scarf[i]
-          const dx = h.x - p.x, dy = h.y - p.y
-          const m = seg / (Math.hypot(dx, dy) || 1)
-          h.x = p.x + dx * m
-          h.y = p.y + dy * m
-        }
-      }
-    }
-    function drawScarf() {
-      for (let i = 0; i < scarf.length - 1; i++) {
-        const p = scarf[i], q = scarf[i + 1]
-        const dx = q.x - p.x, dy = q.y - p.y
-        const l = Math.hypot(dx, dy) || 1
-        const n = { x: -dy / l, y: dx / l }
-        const w0 = (0.26 - 0.025 * i) * U, w1 = (0.26 - 0.025 * (i + 1)) * U
-        facet([add(p, n, w0), add(q, n, w1), add(q, n, -w1), add(p, n, -w0)], i % 2 ? MINT : MINT_LO, 0.5)
-        if (i === scarf.length - 2) facet([add(q, n, w1), add(q, { x: dx / l, y: dy / l }, 0.6 * U), add(q, n, -w1)], MINT_HI)
+    function drawHead(rg: Rig, f: Face, now: number) {
+      const tipGlow = 0.55 + 0.45 * (hash(Math.floor(now * 14), 3) > 0.5 ? 1 : 0)
+      const tip = mixc(YEL_HI, WHITE_Y, tipGlow)
+      drawEar(rg.earL, tip)
+      drawEar(rg.earR, tip)
+      // fluffy jaw tufts
+      facet([rg.hat(-0.9, -0.12), rg.hat(-1.36, -0.44), rg.hat(-0.8, -0.56)].map(toS), YEL_MID)
+      facet([rg.hat(0.9, -0.12), rg.hat(1.36, -0.44), rg.hat(0.8, -0.56)].map(toS), YEL_MID)
+      facet(ell(rg.headC, rg.hr, rg.hu, 1.12, 0.9, 16).map(toS), YEL, 0.55)
+      // cheek pads glow toward white when charged
+      const cheek = mixc(ORANGE, WHITE_Y, f.cheek * 0.7)
+      facet(ell(rg.hat(-0.66, -0.3), rg.hr, rg.hu, 0.23, 0.19, 8).map(toS), cheek, 0.2)
+      facet(ell(rg.hat(0.66, -0.3), rg.hr, rg.hu, 0.23, 0.19, 8).map(toS), cheek, 0.2)
+      // eyes and mouth are cut out, so the page shows through
+      octx!.globalCompositeOperation = 'destination-out'
+      const ery = Math.max(0.045, 0.22 * (1 - f.blink))
+      poly(ell(rg.hat(-0.4, 0.1), rg.hr, rg.hu, 0.17, ery, 8).map(toS), WHITE)
+      poly(ell(rg.hat(0.4, 0.1), rg.hr, rg.hu, 0.17, ery, 8).map(toS), WHITE)
+      poly(ell(rg.hat(0, -0.27), rg.hr, rg.hu, 0.1, 0.04 + 0.13 * f.mouth, 8).map(toS), WHITE)
+      octx!.globalCompositeOperation = 'source-over'
+      if (f.blink < 0.5) {
+        poly(ell(rg.hat(-0.45, 0.17), rg.hr, rg.hu, 0.06, 0.07, 6).map(toS), WHITE)
+        poly(ell(rg.hat(0.35, 0.17), rg.hr, rg.hu, 0.06, 0.07, 6).map(toS), WHITE)
       }
     }
 
     // ---- rasterize and read back as glyph cells ----
     let bodyCenter: V = { x: 0, y: 0 }
-    function rasterize(rig: Rig, scan: number, twitch: number): Cell[] {
+    function rasterize(rig: Rig, f: Face, now: number): Cell[] {
       octx!.setTransform(1, 0, 0, 1, 0, 0)
       octx!.clearRect(0, 0, cols, rows)
       octx!.setTransform(1 / cw, 0, 0, 1 / chH, 0, 0)
-      drawScarf()
-      drawLeg(rig.legL, -1)
-      drawLeg(rig.legR, 1)
-      drawTorso(rig)
-      drawHead(rig, scan, twitch)
+      bx0 = by0 = Infinity
+      bx1 = by1 = -Infinity
+      drawTail(rig, f.orb)
+      drawBody(rig)
+      drawHead(rig, f, now)
       drawArm(rig.armL)
       drawArm(rig.armR)
 
-      const hu = upv(rig.ha)
-      const pts = [rig.legL.toe, rig.legR.toe, rig.legL.knee, rig.legR.knee, rig.armL.hand, rig.armR.hand, rig.armL.elbow, rig.armR.elbow, add(rig.head, hu, 2.7 * HEADR), rig.P].map(toS)
-      for (const s of scarf) pts.push(s)
-      const pad = 1.6 * U
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
-      for (const p of pts) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y) }
-      const c0 = clamp(Math.floor((x0 - pad) / cw), 0, cols - 1)
-      const c1 = clamp(Math.ceil((x1 + pad) / cw), 0, cols - 1)
-      const r0 = clamp(Math.floor((y0 - pad) / chH), 0, rows - 1)
-      const r1 = clamp(Math.ceil((y1 + pad) / chH), 0, rows - 1)
+      bodyCenter = toS(rig.at(0, 1.6))
+      const pad = 0.5 * U
+      const c0 = clamp(Math.floor((bx0 - pad) / cw), 0, cols - 1)
+      const c1 = clamp(Math.ceil((bx1 + pad) / cw), 0, cols - 1)
+      const r0 = clamp(Math.floor((by0 - pad) / chH), 0, rows - 1)
+      const r1 = clamp(Math.ceil((by1 + pad) / chH), 0, rows - 1)
       const w = c1 - c0 + 1, h = r1 - r0 + 1
-      bodyCenter = toS(add(rig.P, rig.u, 1.3))
       if (w <= 1 || h <= 1) return []
       const data = octx!.getImageData(c0, r0, w, h).data
       const out: Cell[] = []
@@ -468,7 +436,8 @@ export default function GlitchPerch() {
           if (a < 28) continue
           const r = data[i], g = data[i + 1], b = data[i + 2]
           const cx = c0 + x, cy = r0 + y
-          let v = Math.pow((Math.max(r, g, b) / 255) * (a / 255), 0.65)
+          // yellow is bright in every facet, so stretch the usable range for shading
+          let v = Math.pow(clamp(((Math.max(r, g, b) * a) / 255 - 75) / 175, 0, 1), 0.85)
           v += (hash(cx, cy) - 0.5) * 0.12
           const idx = clamp(Math.floor(v * RAMP.length), 1, RAMP.length - 1)
           const boost = clamp(245 / Math.max(r, g, b, 1), 1, 2)
@@ -478,37 +447,20 @@ export default function GlitchPerch() {
       return out
     }
 
-    // ---- cell effects ----
-    function materialize(cells: Cell[], k: number, now: number): Cell[] {
-      let minY = Infinity, maxY = -Infinity
-      for (const c of cells) { minY = Math.min(minY, c.cy); maxY = Math.max(maxY, c.cy) }
-      const span = Math.max(1, maxY - minY)
-      const front = k * 1.25 - 0.1
-      const tick = Math.floor(now * 30)
-      const out: Cell[] = []
-      for (const c of cells) {
-        const rel = (maxY - c.cy) / span
-        if (rel > front + 0.08) {
-          if (hash(c.cx, c.cy, tick) < 0.06) out.push({ ...c, ch: '.', r: PINK[0], g: PINK[1], b: PINK[2], a: 0.5 })
-        } else if (rel > front) {
-          out.push({ ...c, ch: pick(GLITCH, hash(c.cx, c.cy, tick)), r: MINT_HI[0], g: MINT_HI[1], b: MINT_HI[2], a: 1 })
-        } else out.push(c)
-      }
-      return out
-    }
-    function glitch(cells: Cell[], g: number, now: number): Cell[] {
+    // ---- electric static on the glyphs ----
+    function zapfx(cells: Cell[], g: number, now: number): Cell[] {
       if (g <= 0) return cells
       const tick = Math.floor(now * 30)
       const out: Cell[] = []
       for (const c of cells) {
-        const rowHit = hash(c.cy >> 1, tick) > 1 - 0.45 * g
-        const shift = rowHit ? Math.round((hash(c.cy >> 1, tick, 3) - 0.5) * 16 * g) : 0
+        const rowHit = hash(c.cy >> 1, tick) > 1 - 0.4 * g
+        const shift = rowHit ? Math.round((hash(c.cy >> 1, tick, 3) - 0.5) * 14 * g) : 0
         let n: Cell = { ...c, cx: c.cx + shift }
-        if (hash(c.cx, c.cy, tick) < 0.3 * g) n.ch = pick(GLITCH, hash(c.cy, c.cx, tick))
-        if (hash(c.cx, c.cy, tick + 1) < 0.2 * g) n = { ...n, r: MINT_HI[0], g: MINT_HI[1], b: MINT_HI[2] }
+        if (hash(c.cx, c.cy, tick) < 0.3 * g) n.ch = pick(STATIC, hash(c.cy, c.cx, tick))
+        if (hash(c.cx, c.cy, tick + 1) < 0.25 * g) n = { ...n, r: WHITE_Y[0], g: WHITE_Y[1], b: WHITE_Y[2] }
         out.push(n)
-        if (hash(c.cx, c.cy, tick + 2) < 0.35 * g) out.push({ ...c, cx: c.cx + 3, r: PINK[0], g: PINK[1], b: PINK[2], a: 0.45 * g })
-        if (hash(c.cx, c.cy, tick + 4) < 0.25 * g) out.push({ ...c, cx: c.cx - 3, r: MINT[0], g: MINT[1], b: MINT[2], a: 0.4 * g })
+        if (hash(c.cx, c.cy, tick + 2) < 0.3 * g) out.push({ ...c, cx: c.cx + 3, r: YEL_HI[0], g: YEL_HI[1], b: YEL_HI[2], a: 0.45 * g })
+        if (hash(c.cx, c.cy, tick + 4) < 0.22 * g) out.push({ ...c, cx: c.cx - 3, r: ORANGE[0], g: ORANGE[1], b: ORANGE[2], a: 0.4 * g })
       }
       return out
     }
@@ -518,12 +470,12 @@ export default function GlitchPerch() {
     let reformPs: ReformP[] = []
     let reformStart = 0
     function spawnExplosion(cells: Cell[]) {
-      const S = 8 * U
+      const S = 5 * U
       for (const c of cells) {
         const x = c.cx * cw, y = c.cy * chH
         const dx = x - bodyCenter.x, dy = y - bodyCenter.y
         const d = Math.hypot(dx, dy) || 1
-        const sp = (0.6 + rng() * 1.6) * S * (0.8 + d / S) * 1.4
+        const sp = (0.6 + rng() * 1.6) * S * (0.8 + d / S) * 1.5
         const ang = (rng() - 0.5) * 0.9
         const ux = dx / d, uy = dy / d
         const max = 0.8 + rng() * 0.9
@@ -535,6 +487,18 @@ export default function GlitchPerch() {
         })
       }
     }
+    function spawnTrail(a: V, b: V) {
+      for (let i = 0; i < 44; i++) {
+        const s = rng()
+        const max = 0.25 + rng() * 0.4
+        particles.push({
+          x: a.x + (b.x - a.x) * s + (rng() - 0.5) * U,
+          y: a.y + (b.y - a.y) * s + (rng() - 0.5) * U,
+          vx: (rng() - 0.5) * 40, vy: (rng() - 0.5) * 40,
+          ch: pick('-=~*+', rng()), c: rng() < 0.5 ? YEL : YEL_HI, life: max, max,
+        })
+      }
+    }
     function stepParticles(dt: number) {
       const g = 160
       for (const p of particles) {
@@ -543,7 +507,7 @@ export default function GlitchPerch() {
         p.x += p.vx * dt
         p.y += p.vy * dt
         p.life -= dt
-        if (rng() < dt * 10) p.ch = pick(GLITCH + '-=+*#', rng())
+        if (rng() < dt * 10) p.ch = pick(STATIC + '-=+*#', rng())
       }
       particles = particles.filter(p => p.life > 0 && p.y < H + 20)
     }
@@ -563,6 +527,7 @@ export default function GlitchPerch() {
     let boltId = 0
     let nextStrike = 0
     let nextCrackle = 0
+    let cheekFlash = -1
     function jag(a: V, b: V, rough: number, depth: number): V[] {
       let pts = [a, b]
       let amp = Math.hypot(b.x - a.x, b.y - a.y) * rough
@@ -592,30 +557,26 @@ export default function GlitchPerch() {
       }
       bolts.push({ id: boltId++, paths, born: now, life, strong })
     }
-    // Lightning comes out of her: a crest tip or a hand. Big strikes streak
-    // outward across the page; short crackles stay close to her body.
+    // Lightning comes out of the critter: mostly its cheeks, sometimes the
+    // tail orb or an ear tip.
     function emitters(rig: Rig): V[] {
-      const hu = upv(rig.ha)
-      const hr = { x: hu.y, y: -hu.x }
-      const at = (x: number, y: number) => toS(add(add(rig.head, hr, x * HEADR), hu, y * HEADR))
-      const hand = (a: Rig['armL']) => toS(add(a.hand, dirv(a.fa), 0.4))
-      return [at(0.12, 2.6), at(-0.8, 2.05), at(0.98, 1.85), hand(rig.armL), hand(rig.armR)]
+      const cl = toS(rig.hat(-0.66, -0.3)), cr = toS(rig.hat(0.66, -0.3))
+      return [cl, cr, cl, cr, toS(rig.tail[rig.tail.length - 1]), toS(rig.earL.tip), toS(rig.earR.tip)]
     }
-    function strike(rig: Rig, now: number) {
+    function strike(rig: Rig, now: number, fromCorner: boolean) {
       const e = emitters(rig)
       const src = e[Math.floor(rng() * e.length)]
-      // aim away from her body, with spread
-      let ang = Math.atan2(src.y - bodyCenter.y, src.x - bodyCenter.x) + (rng() - 0.5) * 1.4
-      // from the corner, always fire back across the page
-      if (anchorOf(corner).A.x - src.x < 8 * Uc && lastSeg >= SEGS.length - 1) ang = Math.PI * (0.85 + rng() * 0.6)
+      // aim away from its body; from the corner, always back across the page
+      const ang = fromCorner ? Math.PI * (0.85 + rng() * 0.6) : Math.atan2(src.y - bodyCenter.y, src.x - bodyCenter.x) + (rng() - 0.5) * 1.4
       const len = Math.max(W, H) * (0.45 + rng() * 0.7)
       spawnBolt(src, { x: src.x + Math.cos(ang) * len, y: src.y + Math.sin(ang) * len }, now, true, 0.42)
+      cheekFlash = now
     }
     function crackle(rig: Rig, now: number) {
       const e = emitters(rig)
       const a = e[Math.floor(rng() * e.length)]
       const ang = rng() * Math.PI * 2
-      const len = U * (0.8 + rng() * 2.2)
+      const len = U * (0.6 + rng() * 1.6)
       spawnBolt(a, { x: a.x + Math.cos(ang) * len, y: a.y + Math.sin(ang) * len }, now, false, 0.16)
     }
     function drawBolts(now: number) {
@@ -644,11 +605,11 @@ export default function GlitchPerch() {
               const key = cx * 100003 + cy
               if (seen.has(key)) continue
               seen.add(key)
-              // soft pink glow around the stroke
-              ctx!.fillStyle = style(PINK[0], PINK[1], PINK[2], core * 0.3)
+              // soft yellow glow around the stroke
+              ctx!.fillStyle = style(YEL[0], YEL[1], YEL[2], core * 0.3)
               ctx!.fillText('·', cx * bcw, (cy - 1) * bch)
               ctx!.fillText('·', cx * bcw, (cy + 1) * bch)
-              const c = hash(cx, cy, b.id) > (b.strong ? 0.7 : 0.8) ? WHITE_PINK : PINK_HI
+              const c = hash(cx, cy, b.id) > (b.strong ? 0.65 : 0.75) ? WHITE_Y : YEL_HI
               ctx!.fillStyle = style(c[0], c[1], c[2], core)
               ctx!.fillText(ch, cx * bcw, cy * bch)
             }
@@ -682,17 +643,17 @@ export default function GlitchPerch() {
       const flash = explodeAt >= 0 && now - explodeAt < 0.08
       for (const p of particles) {
         const t = 1 - p.life / p.max
-        let c = mixc(p.c, MINT, clamp(t * 1.6, 0, 1))
+        let c = mixc(p.c, ORANGE, clamp(t * 1.4, 0, 1))
         let a = Math.pow(p.life / p.max, 0.7)
-        if (flash) { c = WHITE_PINK; a = 1 }
+        if (flash) { c = WHITE_Y; a = 1 }
         ctx!.fillStyle = style(c[0], c[1], c[2], a)
         ctx!.fillText(flash ? '@' : p.ch, Math.round(p.x / cw) * cw, Math.round(p.y / chH) * chH)
       }
       if (explodeAt >= 0 && now - explodeAt < 0.5) {
         const k = (now - explodeAt) / 0.5
-        const R = (0.2 + 1.5 * easeOut(k)) * 8 * U
+        const R = (0.2 + 1.6 * easeOut(k)) * 5 * U
         const steps = Math.ceil((2 * Math.PI * R) / (cw * 1.6))
-        ctx!.fillStyle = style(PINK_HI[0], PINK_HI[1], PINK_HI[2], (1 - k) * 0.85)
+        ctx!.fillStyle = style(YEL_HI[0], YEL_HI[1], YEL_HI[2], (1 - k) * 0.85)
         for (let i = 0; i < steps; i++) {
           const ang = (i / steps) * Math.PI * 2
           ctx!.fillText(hash(i, Math.floor(now * 20)) > 0.5 ? '*' : '+', Math.round((bodyCenter.x + Math.cos(ang) * R) / cw) * cw, Math.round((bodyCenter.y + Math.sin(ang) * R) / chH) * chH)
@@ -706,9 +667,9 @@ export default function GlitchPerch() {
         const j = (1 - e) * 6
         const x = p.sx + (p.tx - p.sx) * e + (rng() - 0.5) * j
         const y = p.sy + (p.ty - p.sy) * e + (rng() - 0.5) * j
-        const c = mixc(MINT_HI, p.c, k)
+        const c = mixc(WHITE_Y, p.c, k)
         ctx!.fillStyle = style(c[0], c[1], c[2], 0.35 + 0.65 * k)
-        ctx!.fillText(k < 0.85 ? pick(GLITCH, rng()) : p.ch, Math.round(x / cw) * cw, Math.round(y / chH) * chH)
+        ctx!.fillText(k < 0.85 ? pick(STATIC, rng()) : p.ch, Math.round(x / cw) * cw, Math.round(y / chH) * chH)
       }
     }
 
@@ -717,41 +678,57 @@ export default function GlitchPerch() {
     let lastCells: Cell[] = []
     let explodeAt = -1
     let idleStart = -1
-    let nextMicro = 0
+    let evKind: '' | 'spark' | 'wave' = ''
+    let evStart = 0
+    let nextEv = 0
 
     function centerOf(p: Perch, scale: number): V {
       const { A, up } = anchorOf(p)
-      return { x: A.x + up.x * scale * 3.6, y: A.y + up.y * scale * 3.6 }
+      return { x: A.x + up.x * scale * 2, y: A.y + up.y * scale * 2 }
     }
-
-    function poseFor(perch: Perch, t: number) {
-      const base = perch.mirror ? mirrorPose(perch.pose) : perch.pose
-      return idlePose(base, t, perch.seed)
+    function faceFor(perch: Perch, t: number): Face {
+      return {
+        blink: blinkAt(t, perch.seed),
+        mouth: 0,
+        cheek: 0.1 + 0.15 * (hash(Math.floor(t * 8), 5) > 0.7 ? 1 : 0),
+        wag: 0.16 * Math.sin(t * 2.6 + perch.seed) + 0.06 * Math.sin(t * 7.1),
+        orb: 0.4 + 0.6 * (hash(Math.floor(t * 12), 8) > 0.5 ? 1 : 0),
+      }
     }
 
     function enter(seg: Seg, now: number, t: number) {
       if (seg.name === 'in') {
         if (!perches[seg.hop]) perches[seg.hop] = choosePerch()
-        scarfReset = true
+        if (seg.hop === 0) {
+          // arrives on a lightning strike from the top of the screen
+          const c = centerOf(perches[0], Up)
+          spawnBolt({ x: c.x + (rng() - 0.5) * 200, y: -10 }, c, now, true, 0.45)
+        }
       } else if (seg.name === 'zap') {
         perches[seg.hop + 1] = choosePerch()
-        spawnBolt(centerOf(perches[seg.hop], Up), centerOf(perches[seg.hop + 1], Up), now, true, 0.38)
+        const a = centerOf(perches[seg.hop], Up), b = centerOf(perches[seg.hop + 1], Up)
+        spawnBolt(a, b, now, true, 0.4)
+        spawnTrail(a, b)
       } else if (seg.name === 'explode') {
         explodeAt = now
         spawnExplosion(lastCells)
-        spawnBolt(bodyCenter, { x: bodyCenter.x + (rng() - 0.5) * W * 0.6, y: -10 }, now, true, 0.4)
+        // overload: thunder bursts out in every direction
+        const n = 7
+        for (let i = 0; i < n; i++) {
+          const ang = (i / n) * Math.PI * 2 + rng() * 0.6
+          const len = Math.max(W, H) * (0.3 + rng() * 0.4)
+          spawnBolt(bodyCenter, { x: bodyCenter.x + Math.cos(ang) * len, y: bodyCenter.y + Math.sin(ang) * len }, now, true, 0.5)
+        }
       } else if (seg.name === 'reform') {
         // rasterize the corner pose once to get the target glyphs
-        const rig = fk(poseFor(corner, t))
+        const rig = build(animate(corner.pose, t, corner.seed), 0)
         setTransform(rig, corner, Uc, 1, 1, { x: 0, y: 0 })
-        scarfReset = true
-        stepScarf(rig, 1 / 60, now)
-        beginReform(rasterize(rig, 0.5, 0), now)
+        beginReform(rasterize(rig, { ...faceFor(corner, t), blink: 0 }, now), now)
       } else if (seg.name === 'idle') {
         idleStart = now
         reformPs = []
-        nextStrike = now + 0.3
-        nextMicro = now + 3 + rng() * 3
+        nextStrike = now + 0.4
+        nextEv = now + 2.5 + rng() * 2
       }
     }
 
@@ -764,42 +741,77 @@ export default function GlitchPerch() {
       }
 
       let cells: Cell[] = []
+      let tint: RGB | undefined
       let perch: Perch | null = null
       let scale = Up
-      if (seg.name === 'in' || seg.name === 'hold' || seg.name === 'out' || seg.name === 'glitch') perch = perches[seg.hop]
+      if (seg.name === 'in' || seg.name === 'hold' || seg.name === 'out' || seg.name === 'charge') perch = perches[seg.hop]
       if (seg.name === 'idle') { perch = corner; scale = Uc }
 
       if (perch) {
-        let sx = 1, sy = 1
+        let pose = animate(perch.pose, t, perch.seed)
+        const face = faceFor(perch, t)
+        let sx = 1, sy = 1, lift = 0, fx = 0
         let shake = { x: 0, y: 0 }
-        if (seg.name === 'in') { sx = 0.15 + 0.85 * easeOut(k * 1.8); sy = 1.3 - 0.3 * easeOut(k * 1.8) }
-        if (seg.name === 'out') { sx = 1 - 0.92 * easeIn(k); sy = 1 + 0.4 * easeIn(k) }
-        if (seg.name === 'glitch') shake = { x: (rng() - 0.5) * 6 * k, y: (rng() - 0.5) * 3 * k }
-        const rig = fk(poseFor(perch, t))
-        setTransform(rig, perch, scale, sx, sy, shake)
-        stepScarf(rig, dt, now)
-        const scan = (Math.sin(now * 1.6 + perch.seed) + 1) / 2
-        const twitch = seg.name === 'idle' && hash(Math.floor(now * 4), 9) > 0.92 ? 0.25 : 0
-        cells = rasterize(rig, scan, twitch)
-        if (seg.name === 'in') cells = glitch(materialize(cells, k, now), (1 - k) * 0.8, now)
-        else if (seg.name === 'out') cells = glitch(cells, 0.4 + 0.6 * k, now)
-        else if (seg.name === 'glitch') cells = glitch(cells, 0.3 + 0.7 * k, now)
-        else if (seg.name === 'idle') {
-          if (now > nextMicro) {
-            if (now > nextMicro + 0.18) nextMicro = now + 3.5 + rng() * 4
-            else cells = glitch(cells, 0.55, now)
+
+        if (seg.name === 'in') {
+          // drops in stretched, lands with a squash
+          const land = 0.35
+          if (k < land) { const q = k / land; sy = 1.35; lift = 2.2 * (1 - q * q); fx = 0.6 * (1 - q) }
+          else { const q = (k - land) / (1 - land); sy = 1 - 0.6 * Math.sin(q * Math.PI) * (1 - q) }
+          sx = 1 / Math.sqrt(sy)
+        } else if (seg.name === 'out') {
+          // crouch, then stretch into a streak and zip away
+          if (k < 0.55) pose = lerpPose(pose, CROUCH, easeOut(k / 0.55))
+          else {
+            const q = (k - 0.55) / 0.45
+            pose = CROUCH
+            sy = 1 + 1.3 * easeIn(q)
+            sx = 1 - 0.75 * easeIn(q)
+            lift = q * q * 1.5
+            fx = 0.7 * q
+          }
+        } else if (seg.name === 'charge') {
+          pose = lerpPose(pose, CHARGE, easeOut(k * 3))
+          const amp = 1 + 4 * k
+          shake = { x: (rng() - 0.5) * amp, y: (rng() - 0.5) * amp * 0.5 }
+          fx = 0.12 + 0.4 * k * k
+          face.mouth = 1
+          face.cheek = 1
+          face.orb = 1
+          if (k > 0.55 && hash(Math.floor(now * 20), 4) > 0.55) tint = WHITE_Y
+        } else if (seg.name === 'idle') {
+          if (!reduced && !evKind && now > nextEv) {
+            evKind = rng() < 0.55 ? 'spark' : 'wave'
+            evStart = now
+          }
+          if (evKind) {
+            const ek = (now - evStart) / (evKind === 'wave' ? 1.8 : 0.7)
+            if (ek >= 1) { evKind = ''; nextEv = now + 4 + rng() * 4 }
+            else if (evKind === 'wave') pose = lerpPose(pose, animate(WAVE, t, corner.seed), clamp(Math.sin(ek * Math.PI) * 2.5, 0, 1))
+            else { face.mouth = 0.8; face.cheek = 1; face.orb = 1 }
           }
         }
+
+        if (cheekFlash >= 0) face.cheek = Math.max(face.cheek, 1 - (now - cheekFlash) / 0.3)
+        const up = anchorOf(perch).up
+        shake = { x: shake.x + up.x * lift * scale, y: shake.y + up.y * lift * scale }
+        const rig = build(pose, face.wag)
+        setTransform(rig, perch, scale, sx / Math.sqrt(pose.sq), sy * pose.sq, shake)
+        cells = rasterize(rig, face, now)
+        if (fx > 0) cells = zapfx(cells, fx, now)
         lastCells = cells
-        // lightning out of her while she's solid on a perch or idling
-        if (!reduced && (seg.name === 'hold' || seg.name === 'idle' || (seg.name === 'in' && k > 0.6))) {
-          if (now > nextStrike) {
-            strike(rig, now)
-            nextStrike = now + (seg.name === 'idle' ? 1.1 + rng() * 2.2 : 0.5 + rng() * 0.8)
+
+        // lightning out of it while it's solid on a perch or idling
+        if (!reduced) {
+          const solid = seg.name === 'hold' || seg.name === 'idle' || (seg.name === 'in' && k > 0.6)
+          if (solid && now > nextStrike) {
+            strike(rig, now, seg.name === 'idle')
+            nextStrike = now + (seg.name === 'idle' ? 1.6 + rng() * 2.4 : 0.8 + rng() * 0.9)
           }
-          if (now > nextCrackle) {
+          const sparking = seg.name === 'charge' || (seg.name === 'idle' && evKind === 'spark')
+          if ((solid || sparking) && now > nextCrackle) {
             crackle(rig, now)
-            nextCrackle = now + 0.25 + rng() * 0.7
+            nextCrackle = now + (sparking ? 0.05 + rng() * 0.07 : 0.3 + rng() * 0.7)
           }
         }
       }
@@ -813,11 +825,11 @@ export default function GlitchPerch() {
       drawBolts(now)
       drawParticles(now, explodeAt)
       if (seg.name === 'reform') drawReform(now)
-      if (cells.length) drawCells(cells, idleStart >= 0 && now - idleStart < 0.12 ? WHITE_PINK : undefined)
+      if (cells.length) drawCells(cells, tint ?? (idleStart >= 0 && now - idleStart < 0.12 ? WHITE_Y : undefined))
     }
 
     // ---- run ----
-    const onResize = () => { resize(); scarfReset = true }
+    const onResize = () => resize()
     window.addEventListener('resize', onResize)
 
     if (debugT !== null || reduced) {
